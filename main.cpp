@@ -15,13 +15,16 @@ int main(){
 
   //Operator Tests
   BigNum t1 = BigNum("2222") + BigNum("9999");
-  cout << endl << t1 << endl;
+  cout << t1 << endl;
 
-  //BigNum t2 = BigNum("10000") - BigNum("9999");
-  //cout << t2 << endl;
+  BigNum t2 = BigNum("10000") - BigNum("9999");
+  cout  << t2 << endl;
 
-  //BigNum x = pow(BigNum("2"),10000);
-  //cout << x << endl;
+  BigNum t3 = BigNum("99999") * BigNum("333");
+  cout << t3 << endl;
+
+  BigNum t4 = pow(BigNum("2"),20);
+  cout << t4 << endl;
 
   return 0;
 }
