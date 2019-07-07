@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <cmath>
 using namespace std;
 
 class BigNum{
@@ -127,6 +126,9 @@ BigNum BigNum::operator *(const BigNum& a){
     }
     product.digits[b_i+this->digits.size()] = carry;
   }
+  while(product.digits.back() == 0){
+    product.digits.pop_back();
+  }
   return product;
 };
 
@@ -143,12 +145,13 @@ ostream& operator <<(ostream& os, const BigNum& a){
   return os;
 };
 
-/*// Can only exponentiate postive integers
+// Can only exponentiate postive integers
 BigNum pow(const BigNum& a, unsigned long int n){
-  BigNum x = BigNum("1");
   if(n == 0){
-    return x;
+    return BigNum("1");
   }
+  BigNum x = BigNum();
+  x.digits = a.digits;
   BigNum y = BigNum("1");
   while(n > 1){
     if(n % 2 == 0){
@@ -162,4 +165,4 @@ BigNum pow(const BigNum& a, unsigned long int n){
     }
   }
   return x * y;
-};*/
+};
