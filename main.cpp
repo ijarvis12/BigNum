@@ -18,7 +18,7 @@ int main(){
   cout << t1 << endl;
 
   BigNum t2 = BigNum("10000") - BigNum("9999");
-  cout  << t2 << endl;
+  cout << t2 << endl;
 
   BigNum t3 = BigNum("99999") * BigNum("333");
   cout << t3 << endl;
