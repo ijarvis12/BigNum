@@ -20,7 +20,7 @@ class BigNum{
     //Vector API
     unsigned long int size() const;
     void resize(const unsigned long int x);
-    void push_back(const int x);
+    void push_back(const short int x);
     void pop_back();
     short int back() const;
     //Operators
@@ -28,7 +28,7 @@ class BigNum{
     BigNum operator +(const BigNum& a);
     BigNum operator -(const BigNum& a);
     BigNum operator *(const BigNum& a);
-    double operator /(const BigNum& a);
+    BigNum operator /(const BigNum& a);
 };
 
 //Constructors
@@ -72,7 +72,7 @@ void BigNum::resize(const unsigned long int x){
   this->digits.resize(x);
 };
 
-void BigNum::push_back(const int x){
+void BigNum::push_back(const short int x){
   this->digits.push_back(x);
 };
 
@@ -91,41 +91,22 @@ BigNum BigNum::operator =(const BigNum& a){
 };
 
 BigNum BigNum::operator +(const BigNum& a){
-  BigNum c = BigNum();
-  unsigned long int j;
   for(unsigned long int i=0; i<a.size(); i++){
-    if(c.size() <= i){
-      c.push_back(a.getDigit(i) + this->getDigit(i));
-      j = i;
-      while(c.getDigit(j) > 9){
-        c.setDigit(j,c.getDigit(j)-10);
-        if(j+1 >= c.size()){
-          c.push_back(1);
-          break;
-        }
-        else{
-          c.setDigit(j+1,c.getDigit(j+1)+1);
-          j++;
-        }
-      }
+    if(i > this->size()-1){
+      this->push_back(0);
     }
-    else{
-      c.setDigit(i,c.getDigit(i)+a.getDigit(i)+this->getDigit(i));
-      j = i;
-      while(c.getDigit(j) > 9){
-        c.setDigit(j,c.getDigit(j)-10);
-        if(j+1 >= c.size()){
-          c.push_back(1);
-          break;
-        }
-        else{
-          c.setDigit(j+1,c.getDigit(j+1)+1);
-          j++;
-        }
+    this->setDigit(i,this->getDigit(i)+a.getDigit(i));
+    while(this->getDigit(i) > 9){
+      this->setDigit(i,this->getDigit(i)-10);
+      if(i+1 > this->size()-1){
+        this->push_back(1);
+      }
+      else{
+        this->setDigit(i+1,this->getDigit(i+1)+1);
       }
     }
   }
-  return c;
+  return *this;
 };
 
 
@@ -187,34 +168,30 @@ BigNum BigNum::operator *(const BigNum& a){
 };
 
 //BigNum a must be smaller
-double BigNum::operator /(const BigNum&  a){
+BigNum BigNum::operator /(const BigNum&  a){
   if(a.back() == 0){
-    return 1.0/0.0;
+    return BigNum();
   }
   else if(this->back() == 0){
-    return 0.0;
+    return BigNum("0");
   }
   else if(a.size() == 1 && a.getDigit(0) == 1){
-    double b = 0.0;
-    for(unsigned long int i=0; i<this->size(); i++){
-      b += this->getDigit(i) * (i*10);
-    }
-    return b;
+    return *this;
   }
   else if(a.size() > this->size()){
-    return 0.0;
+    return BigNum("0");
   }
   else if(a.size() == this->size() && a.back() > this->back()){
-    return 0.0;
+    return BigNum("0");
   }
-  double division = 0.0;
+  BigNum division = BigNum("0");
   BigNum c = *this;
   while(c.size() >= a.size()){
     if(c.size() == a.size() && c.back() < a.back()){
       break;
     }
     c = c - a;
-    division += 1.0;
+    division = division + BigNum("1");
   }
   return division;
 };
