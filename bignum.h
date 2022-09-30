@@ -28,6 +28,7 @@ class BigNum{
     BigNum operator +(const BigNum& a);
     BigNum operator -(const BigNum& a);
     BigNum operator *(const BigNum& a);
+    double operator /(const BigNum& a);
 };
 
 //Constructors
@@ -183,6 +184,39 @@ BigNum BigNum::operator *(const BigNum& a){
     product.pop_back();
   }
   return product;
+};
+
+//BigNum a must be smaller
+double BigNum::operator /(const BigNum&  a){
+  if(a.back() == 0){
+    return 1.0/0.0;
+  }
+  else if(this->back() == 0){
+    return 0.0;
+  }
+  else if(a.size() == 1 && a.getDigit(0) == 1){
+    double b = 0.0;
+    for(unsigned long int i=0; i<this->size(); i++){
+      b += this->getDigit(i) * (i*10);
+    }
+    return b;
+  }
+  else if(a.size() > this->size()){
+    return 0.0;
+  }
+  else if(a.size() == this->size() && a.back() > this->back()){
+    return 0.0;
+  }
+  double division = 0.0;
+  BigNum c = *this;
+  while(c.size() >= a.size()){
+    if(c.size() == a.size() && c.back() < a.back()){
+      break;
+    }
+    c = c - a;
+    division += 1.0;
+  }
+  return division;
 };
 
 ostream& operator <<(ostream& os, const BigNum& a){
