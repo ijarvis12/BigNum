@@ -13,6 +13,8 @@ int main(){
   BigNum i3 = BigNum(1000000100);
   cout << i3 << endl;
 
+  cout << endl;
+
   //Operator Tests
   BigNum t1 = BigNum("2222") + BigNum("9999");
   cout << t1 << endl;
@@ -25,6 +27,9 @@ int main(){
 
   BigNum t4 = pow(BigNum("2"),20);
   cout << t4 << endl;
+
+  BigNum t5 = BigNum("99999") / BigNum("333");
+  cout << t5 << endl;
 
   return 0;
 }
