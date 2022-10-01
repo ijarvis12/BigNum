@@ -1,11 +1,52 @@
 #include <iostream>
+#include "bignum.h"
+using namespace std;
+
+int main(){
+  //Initializer Tests
+  BigNum i1 = BigNum();
+  cout << i1 << endl;
+
+  BigNum i2 = BigNum("1010101010");
+  cout << i2 << endl;
+
+  BigNum i3 = BigNum(1000000100);
+  cout << i3 << endl;
+
+  cout << endl;
+
+  //Operator Tests
+  BigNum t1 = BigNum("999999999") + BigNum("1");
+  cout << t1 << endl;
+
+  BigNum t2 = BigNum("100000000") - BigNum("99999999");
+  cout << t2 << endl;
+
+  BigNum t3 = BigNum("999999999") * BigNum("333");
+  cout << t3 << endl;
+
+  BigNum t4 = pow(BigNum("2"),30);
+  cout << t4 << endl;
+
+  BigNum t5 = BigNum("999999999") / BigNum("333");
+  cout << t5 << endl;
+
+  BigNum t6 = BigNum("999999999") % BigNum("333");
+  cout << t6 << endl;
+
+  return 0;
+}
+ijarvis12@penguin:~$ cat bignum.h
+#include <iostream>
 #include <string>
 #include <vector>
 using namespace std;
 
+const unsigned long int WORD_SIZE = 100000000;
+
 class BigNum{
   private:
-    vector<short int> digits;
+    vector<long int> digits;
   public:
     //Constructors
     BigNum();
@@ -14,15 +55,15 @@ class BigNum{
     //Deconstructor
     ~BigNum();
     //Setter
-    void setDigit(const unsigned long int digit, const short int x);
+    void setDigit(const unsigned long int digit, const long int x);
     //Getter
-    short int getDigit(const unsigned long int digit) const;
+    long int getDigit(const unsigned long int digit) const;
     //Vector API
     unsigned long int size() const;
     void resize(const unsigned long int x);
-    void push_back(const short int x);
+    void push_back(const long int x);
     void pop_back();
-    short int back() const;
+    long int back() const;
     //Operators
     BigNum operator =(const BigNum& a);
     BigNum operator +(const BigNum& a);
@@ -38,10 +79,21 @@ BigNum::BigNum(){
 };
 
 BigNum::BigNum(const string& num){
-  for(unsigned long int i=num.length()-1; i>0; i--){
-    this->push_back(stoi(num.substr(i,1)));
+  if(num.length() > 15){
+    for(unsigned long int i=num.length()-8; i>7; i-=8){
+      this->push_back(stoi(num.substr(i,8)));
+    }
+    char mod = (num.length() % 8);
+    if(mod != 0){
+      this->push_back(stoi(num.substr(0,mod)));
+    }
+    else{
+      this->push_back(stoi(num.substr(0,8)));
+    }
   }
-  this->push_back(stoi(num.substr(0,1)));
+  else{
+    this->push_back(stoi(num));
+  }
 };
 
 BigNum::BigNum(const unsigned long int num){
@@ -55,12 +107,12 @@ BigNum::~BigNum(){
 };
 
 //Setter
-void BigNum::setDigit(const unsigned long int digit, const short int x){
+void BigNum::setDigit(const unsigned long int digit, const long int x){
   this->digits[digit] = x;
 };
 
 //Getter
-short int BigNum::getDigit(const unsigned long int digit) const {
+long int BigNum::getDigit(const unsigned long int digit) const {
   return this->digits[digit];
 };
 
@@ -73,7 +125,7 @@ void BigNum::resize(const unsigned long int x){
   this->digits.resize(x);
 };
 
-void BigNum::push_back(const short int x){
+void BigNum::push_back(const long int x){
   this->digits.push_back(x);
 };
 
@@ -81,17 +133,35 @@ void BigNum::pop_back(){
   this->digits.pop_back();
 };
 
-short int BigNum::back() const {
+long int BigNum::back() const {
   return this->digits.back();
 };
 
 //Operators
 ostream& operator <<(ostream& os, const BigNum& a){
   if(a.size() > 0){
-    for(unsigned long int i=a.size()-1; i>0; i--){
-      os << a.getDigit(i);
+    if(a.size() > 1){
+      os << a.back();
+      string x = "";
+      char x_len = 0;
+      for(unsigned long int i=a.size()-2; i>0; i--){
+        x = to_string(a.getDigit(i));
+        x_len = x.length();
+        for(char j=8; j>x_len; j--){
+          x = "0" + x;
+        }
+        os << x;
+      }
+      x = to_string(a.getDigit(0));
+      x_len = x.length();
+      for(char j=8; j>x_len; j--){
+        x = "0" + x;
+      }
+      os << x;
     }
-    os << a.getDigit(0);
+    else{
+      os << a.getDigit(0);
+    }
   }
   else{
     os << "err:size 0";
@@ -114,13 +184,15 @@ BigNum BigNum::operator +(const BigNum& a){
       addition.push_back(0);
     }
     addition.setDigit(i,addition.getDigit(i)+a.getDigit(i));
-    while(addition.getDigit(i) > 9){
-      addition.setDigit(i,addition.getDigit(i)-10);
-      if(i+1 > addition.size()-1){
-        addition.push_back(1);
-      }
-      else{
-        addition.setDigit(i+1,addition.getDigit(i+1)+1);
+    for(unsigned long int j=i; j<addition.size(); j++){
+      while(addition.getDigit(j) > (WORD_SIZE - 1)){
+        addition.setDigit(j,addition.getDigit(j)-WORD_SIZE);
+        if(j+1 > addition.size()-1){
+          addition.push_back(1);
+        }
+        else{
+          addition.setDigit(i+1,addition.getDigit(i+1)+1);
+        }
       }
     }
   }
@@ -140,7 +212,7 @@ BigNum BigNum::operator -(const BigNum& a){
     subtract.setDigit(i,subtract.getDigit(i)-a.getDigit(i));
     for(unsigned long int j=i; j<subtract.size()-1; j++){
       while(subtract.getDigit(j) < 0){
-        subtract.setDigit(j,subtract.getDigit(j)+10);
+        subtract.setDigit(j,subtract.getDigit(j)+WORD_SIZE);
         subtract.setDigit(j+1,subtract.getDigit(j+1)-1);
       }
     }
@@ -168,13 +240,13 @@ BigNum BigNum::operator *(const BigNum& a){
   }
   BigNum product = BigNum();
   product.resize(this->size()+a.size());
-  unsigned short int carry;
+  unsigned long int carry;
   for(unsigned long int b_i=0; b_i<a.size(); b_i++){
     carry = 0;
     for(unsigned long int a_i=0; a_i<this->size(); a_i++){
       product.setDigit(a_i+b_i,product.getDigit(a_i+b_i)+carry+this->getDigit(a_i)*a.getDigit(b_i));
-      carry = (unsigned short int)(product.getDigit(a_i+b_i) / 10);
-      product.setDigit(a_i+b_i,product.getDigit(a_i+b_i)%10);
+      carry = (unsigned long int)(product.getDigit(a_i+b_i) / WORD_SIZE);
+      product.setDigit(a_i+b_i,product.getDigit(a_i+b_i)%WORD_SIZE);
     }
     product.setDigit(b_i+this->size(),carry);
   }
@@ -213,6 +285,7 @@ BigNum BigNum::operator /(const BigNum&  a){
   return division;
 };
 
+// BigNum a must be smaller
 BigNum BigNum::operator %(const BigNum& a){
   BigNum b = a;
   BigNum c = (*this / a);
