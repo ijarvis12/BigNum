@@ -29,6 +29,7 @@ class BigNum{
     BigNum operator -(const BigNum& a);
     BigNum operator *(const BigNum& a);
     BigNum operator /(const BigNum& a);
+    BigNum operator %(const BigNum& a);
 };
 
 //Constructors
@@ -85,30 +86,46 @@ short int BigNum::back() const {
 };
 
 //Operators
-BigNum BigNum::operator =(const BigNum& a){
-  this->digits = a.digits;
-  return *this;
+ostream& operator <<(ostream& os, const BigNum& a){
+  if(a.size() > 0){
+    for(unsigned long int i=a.size()-1; i>0; i--){
+      os << a.getDigit(i);
+    }
+    os << a.getDigit(0);
+  }
+  else{
+    os << "err:size 0";
+  }
+  return os;
 };
 
-BigNum BigNum::operator +(const BigNum& a){
+BigNum BigNum::operator =(const BigNum& a){
+  this->resize(a.size());
   for(unsigned long int i=0; i<a.size(); i++){
-    if(i > this->size()-1){
-      this->push_back(0);
-    }
-    this->setDigit(i,this->getDigit(i)+a.getDigit(i));
-    while(this->getDigit(i) > 9){
-      this->setDigit(i,this->getDigit(i)-10);
-      if(i+1 > this->size()-1){
-        this->push_back(1);
-      }
-      else{
-        this->setDigit(i+1,this->getDigit(i+1)+1);
-      }
-    }
+    this->setDigit(i,a.getDigit(i));
   }
   return *this;
 };
 
+BigNum BigNum::operator +(const BigNum& a){
+  BigNum addition = *this;
+  for(unsigned long int i=0; i<a.size(); i++){
+    if(i > addition.size()-1){
+      addition.push_back(0);
+    }
+    addition.setDigit(i,addition.getDigit(i)+a.getDigit(i));
+    while(addition.getDigit(i) > 9){
+      addition.setDigit(i,addition.getDigit(i)-10);
+      if(i+1 > addition.size()-1){
+        addition.push_back(1);
+      }
+      else{
+        addition.setDigit(i+1,addition.getDigit(i+1)+1);
+      }
+    }
+  }
+  return addition;
+};
 
 // Can only do subtraction that ends with a positive number, for now
 BigNum BigNum::operator -(const BigNum& a){
@@ -118,20 +135,21 @@ BigNum BigNum::operator -(const BigNum& a){
   else if(this->size() == a.size() && this->back() < a.back()){
     return BigNum("0");
   }
-  unsigned long int j;
-  for(unsigned long int i=0; i<this->size(); i++){
-    this->setDigit(i,this->getDigit(i)-a.getDigit(i));
+  BigNum subtract = *this;
+  unsigned long int j = 0;
+  for(unsigned long int i=0; i<a.size(); i++){
+    subtract.setDigit(i,subtract.getDigit(i)-a.getDigit(i));
     j = i;
-    while(this->getDigit(j) < 0){
-      this->setDigit(j+1,this->getDigit(j+1)-1);
-      this->setDigit(j,this->getDigit(j)+10);
+    while(subtract.getDigit(j) < 0){
+      subtract.setDigit(j+1,subtract.getDigit(j+1)-1);
+      subtract.setDigit(j,subtract.getDigit(j)+10);
       j++;
     }
   }
-  while(this->back() == 0){
-    this->pop_back();
+  while(subtract.back() == 0){
+    subtract.pop_back();
   }
-  return *this;
+  return subtract;
 };
 
 // Use long multiplcation
@@ -196,17 +214,11 @@ BigNum BigNum::operator /(const BigNum&  a){
   return division;
 };
 
-ostream& operator <<(ostream& os, const BigNum& a){
-  if(a.size() > 0){
-    for(unsigned long int i=a.size()-1; i>0; i--){
-      os << a.getDigit(i);
-    }
-    os << a.getDigit(0);
-  }
-  else{
-    os << "err:size 0";
-  }
-  return os;
+BigNum BigNum::operator %(const BigNum& a){
+  BigNum b = a;
+  BigNum c = (*this / a);
+  BigNum d = (b - c);
+  return d;
 };
 
 // Can only exponentiate postive integers
