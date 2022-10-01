@@ -31,5 +31,8 @@ int main(){
   BigNum t5 = BigNum("99999") / BigNum("333");
   cout << t5 << endl;
 
+  BigNum t6 = BigNum("99999") % BigNum("333");
+  cout << t6 << endl;
+
   return 0;
 }
