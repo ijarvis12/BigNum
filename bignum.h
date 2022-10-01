@@ -136,14 +136,13 @@ BigNum BigNum::operator -(const BigNum& a){
     return BigNum("0");
   }
   BigNum subtract = *this;
-  unsigned long int j = 0;
   for(unsigned long int i=0; i<a.size(); i++){
     subtract.setDigit(i,subtract.getDigit(i)-a.getDigit(i));
-    j = i;
-    while(subtract.getDigit(j) < 0){
-      subtract.setDigit(j+1,subtract.getDigit(j+1)-1);
-      subtract.setDigit(j,subtract.getDigit(j)+10);
-      j++;
+    for(unsigned long int j=i; j<subtract.size()-1; j++){
+      while(subtract.getDigit(j) < 0){
+        subtract.setDigit(j,subtract.getDigit(j)+10);
+        subtract.setDigit(j+1,subtract.getDigit(j+1)-1);
+      }
     }
   }
   while(subtract.back() == 0){
