@@ -4,6 +4,7 @@
 using namespace std;
 
 const unsigned long int WORD_SIZE = 100000000;
+const char WORD_LEN = 8;
 
 class BigNum{
   private:
@@ -40,16 +41,16 @@ BigNum::BigNum(){
 };
 
 BigNum::BigNum(const string& num){
-  if(num.length() > 15){
-    for(unsigned long int i=num.length()-8; i>7; i-=8){
+  if(num.length() > (WORD_LEN*2 - 1)){
+    for(unsigned long int i=num.length()-WORD_LEN; i>(WORD_LEN-1); i-=WORD_LEN){
       this->push_back(stoi(num.substr(i,8)));
     }
-    char mod = (num.length() % 8);
+    char mod = (num.length() % WORD_LEN);
     if(mod != 0){
       this->push_back(stoi(num.substr(0,mod)));
     }
     else{
-      this->push_back(stoi(num.substr(0,8)));
+      this->push_back(stoi(num.substr(0,WORD_LEN)));
     }
   }
   else{
@@ -108,14 +109,14 @@ ostream& operator <<(ostream& os, const BigNum& a){
       for(unsigned long int i=a.size()-2; i>0; i--){
         x = to_string(a.getDigit(i));
         x_len = x.length();
-        for(char j=8; j>x_len; j--){
+        for(char j=WORD_LEN; j>x_len; j--){
           x = "0" + x;
         }
         os << x;
       }
       x = to_string(a.getDigit(0));
       x_len = x.length();
-      for(char j=8; j>x_len; j--){
+      for(char j=WORD_LEN; j>x_len; j--){
         x = "0" + x;
       }
       os << x;
@@ -152,8 +153,11 @@ BigNum BigNum::operator +(const BigNum& a){
           addition.push_back(1);
         }
         else{
-          addition.setDigit(i+1,addition.getDigit(i+1)+1);
+          addition.setDigit(j+1,addition.getDigit(j+1)+1);
         }
+      }
+      if(addition.getDigit(j+1) < (WORD_SIZE - 1)){
+        break;
       }
     }
   }
@@ -175,6 +179,9 @@ BigNum BigNum::operator -(const BigNum& a){
       while(subtract.getDigit(j) < 0){
         subtract.setDigit(j,subtract.getDigit(j)+WORD_SIZE);
         subtract.setDigit(j+1,subtract.getDigit(j+1)-1);
+      }
+      if(subtract.getDigit(j+1) > 0){
+        break;
       }
     }
   }
@@ -236,12 +243,13 @@ BigNum BigNum::operator /(const BigNum&  a){
   }
   BigNum division = BigNum("0");
   BigNum c = *this;
+  BigNum one = BigNum("1");
   while(c.size() >= a.size()){
     if(c.size() == a.size() && c.back() < a.back()){
       break;
     }
     c = c - a;
-    division = division + BigNum("1");
+    division = division + one;
   }
   return division;
 };
