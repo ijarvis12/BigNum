@@ -156,7 +156,7 @@ BigNum BigNum::operator +(const BigNum& a){
           addition.setDigit(j+1,addition.getDigit(j+1)+1);
         }
       }
-      if(addition.getDigit(j+1) < (WORD_SIZE - 1)){
+      if(addition.getDigit(j+1) < WORD_SIZE){
         break;
       }
     }
@@ -180,7 +180,7 @@ BigNum BigNum::operator -(const BigNum& a){
         subtract.setDigit(j,subtract.getDigit(j)+WORD_SIZE);
         subtract.setDigit(j+1,subtract.getDigit(j+1)-1);
       }
-      if(subtract.getDigit(j+1) > 0){
+      if(subtract.getDigit(j+1) > -1){
         break;
       }
     }
