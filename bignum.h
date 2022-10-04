@@ -41,6 +41,7 @@ BigNum::BigNum(){
 };
 
 BigNum::BigNum(const string& num){
+  this->resize(0);
   if(num.length() > (WORD_LEN*2 - 1)){
     for(unsigned long int i=num.length()-WORD_LEN; i>(WORD_LEN-1); i-=WORD_LEN){
       this->push_back(stol(num.substr(i,WORD_LEN)));
