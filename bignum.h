@@ -3,8 +3,8 @@
 #include <vector>
 using namespace std;
 
-const unsigned long int WORD_SIZE = 100000000;
-const char WORD_LEN = 8;
+const unsigned long int WORD_SIZE = 1000000000;
+const char WORD_LEN = 9;
 
 class BigNum{
   private:
@@ -43,18 +43,18 @@ BigNum::BigNum(){
 BigNum::BigNum(const string& num){
   if(num.length() > (WORD_LEN*2 - 1)){
     for(unsigned long int i=num.length()-WORD_LEN; i>(WORD_LEN-1); i-=WORD_LEN){
-      this->push_back(stoi(num.substr(i,8)));
+      this->push_back(stol(num.substr(i,WORD_LEN)));
     }
     char mod = (num.length() % WORD_LEN);
     if(mod != 0){
-      this->push_back(stoi(num.substr(0,mod)));
+      this->push_back(stol(num.substr(0,mod)));
     }
     else{
-      this->push_back(stoi(num.substr(0,WORD_LEN)));
+      this->push_back(stol(num.substr(0,WORD_LEN)));
     }
   }
   else{
-    this->push_back(stoi(num));
+    this->push_back(stol(num));
   }
 };
 
