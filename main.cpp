@@ -19,13 +19,13 @@ int main(){
   BigNum t1 = BigNum("999999999") + BigNum("1");
   cout << t1 << endl;
 
-  BigNum t2 = BigNum("100000000") - BigNum("99999999");
+  BigNum t2 = BigNum("1000000000") - BigNum("999999999");
   cout << t2 << endl;
 
-  BigNum t3 = BigNum("999999999") * BigNum("333");
+  BigNum t3 = BigNum("9999999999") * BigNum("333");
   cout << t3 << endl;
 
-  BigNum t4 = pow(BigNum("2"),30);
+  BigNum t4 = pow(BigNum("2"),36);
   cout << t4 << endl;
 
   BigNum t5 = BigNum("999999999") / BigNum("333");
