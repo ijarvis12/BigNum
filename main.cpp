@@ -28,10 +28,10 @@ int main(){
   BigNum t4 = pow(BigNum("2"),36);
   cout << t4 << endl;
 
-  BigNum t5 = BigNum("999999999") / BigNum("333");
+  BigNum t5 = BigNum("9999999999") / BigNum("333");
   cout << t5 << endl;
 
-  BigNum t6 = BigNum("999999999") % BigNum("333");
+  BigNum t6 = BigNum("9999999999") % BigNum("333");
   cout << t6 << endl;
 
   return 0;
