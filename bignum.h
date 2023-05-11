@@ -260,10 +260,36 @@ BigNum BigNum::operator /(const BigNum&  a){
 
 // BigNum a must be smaller
 BigNum BigNum::operator %(const BigNum& a){
-  BigNum b = a;
-  BigNum c = (*this / a);
-  BigNum d = (b - c);
-  return d;
+  if(a.back() == 0){
+    return BigNum();
+  }
+  else if(this->back() == 0){
+    return BigNum("0");
+  }
+  else if(a.size() == 1 && a.getDigit(0) == 1){
+    return BigNum("0");
+  }
+  else if(a.size() > this->size()){
+    return *this;
+  }
+  else if(a.size() == this->size() && a.back() > this->back()){
+    return *this;
+  }
+  BigNum division = BigNum();
+  double b,c,carrymod = 0;
+  for(unsigned long int i=this->size()-1; i>0; i--){
+    b = this->getDigit(i)/(a.getDigit(i)+carrymod);
+    carrymod = modf(b,&c);
+    carrymod *= WORD_SIZE;
+  }
+  b = this->getDigit(0)/(a.getDigit(0)+carrymod);
+  carrymod = modf(b,&c);
+  BigNum product = BigNum();
+  product.resize(a.size());
+  for(unsigned long int i=0; i<a.size(); i++){
+    product.setDigit(i,(long unsigned int)round(carrymod*a.getDigit(i)));
+  }
+  return product;
 };
 
 // Can only exponentiate postive integers
