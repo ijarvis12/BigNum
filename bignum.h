@@ -289,6 +289,9 @@ BigNum BigNum::operator %(const BigNum& a){
   for(unsigned long int i=0; i<a.size(); i++){
     product.setDigit(i,(long unsigned int)round(carrymod*a.getDigit(i)));
   }
+  while(product.back() == 0){
+    product.pop_back();
+  }
   return product;
 };
 
