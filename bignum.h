@@ -247,12 +247,12 @@ BigNum BigNum::operator /(const BigNum&  a){
   division.resize(this->size());
   double b,c,carry = 0;
   for(unsigned long int i=this->size()-1; i>0; i--){
-    b = this->getDigit(i)/(a.getDigit(i)+a.getDigit(i)*carry);
+    b = this->getDigit(i)/(a.getDigit(i)+carry);
     carry = modf(b,&c);
     division.setDigit(i,c);
     carry *= WORD_SIZE;
   }
-  b = this->getDigit(0)/(a.getDigit(0)+a.getDigit(0)*carry);
+  b = this->getDigit(0)/(a.getDigit(0)+carry);
   carry = modf(b,&c);
   division.setDigit(0,c);
   return division;
