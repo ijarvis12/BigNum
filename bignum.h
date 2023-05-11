@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cmath>
 using namespace std;
 
 const unsigned long int WORD_SIZE = 1000000000;
@@ -242,16 +243,18 @@ BigNum BigNum::operator /(const BigNum&  a){
   else if(a.size() == this->size() && a.back() > this->back()){
     return BigNum("0");
   }
-  BigNum division = BigNum("0");
-  BigNum c = *this;
-  BigNum one = BigNum("1");
-  while(c.size() >= a.size()){
-    if(c.size() == a.size() && c.back() < a.back()){
-      break;
-    }
-    c = c - a;
-    division = division + one;
+  BigNum division = BigNum();
+  division.resize(this->size());
+  double b,c,carry = 0;
+  for(unsigned long int i=this->size()-1; i>0; i--){
+    b = this->getDigit(i)/(a.getDigit(i)+a.getDigit(i)*carry);
+    carry = modf(b,&c);
+    division.setDigit(i,c);
+    carry *= WORD_SIZE;
   }
+  b = this->getDigit(0)/(a.getDigit(0)+a.getDigit(0)*carry);
+  carry = modf(b,&c);
+  division.setDigit(0,c);
   return division;
 };
 
