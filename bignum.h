@@ -227,7 +227,7 @@ BigNum BigNum::operator *(const BigNum& a){
 };
 
 //BigNum a must be smaller
-BigNum BigNum::operator /(const BigNum&  a){
+BigNum BigNum::operator /(const BigNum& a){
   if(a.back() == 0){
     return BigNum();
   }
