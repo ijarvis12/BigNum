@@ -226,73 +226,50 @@ BigNum BigNum::operator *(const BigNum& a){
   return product;
 };
 
-//BigNum a must be smaller
+//BigNum a must be smaller and size() == 1
 BigNum BigNum::operator /(const BigNum& a){
-  if(a.back() == 0){
-    return BigNum();
-  }
-  else if(this->back() == 0){
-    return BigNum("0");
-  }
-  else if(a.size() == 1 && a.getDigit(0) == 1){
-    return *this;
-  }
-  else if(a.size() > this->size()){
-    return BigNum("0");
-  }
-  else if(a.size() == this->size() && a.back() > this->back()){
-    return BigNum("0");
-  }
-  BigNum division = BigNum();
-  division.resize(this->size());
+  BigNum division = new BigNum("0");
+  if(a.back() == 0) return division;
+  else if(this->back() == 0) return division;
+  else if(a.size() > 1) return *this;
+  else if(a.getDigit(0) == 1) return *this;
+  else if(a.back() > this->back() && this->size() == 1) return division;
+  division.resize(this.size());
   double b,c,carry = 0;
   for(unsigned long int i=this->size()-1; i>0; i--){
-    b = this->getDigit(i)/(a.getDigit(i)+carry);
+    b = this->getDigit(i)/a.getDigit(0)+carry;
     carry = modf(b,&c);
     division.setDigit(i,c);
     carry *= WORD_SIZE;
   }
-  b = this->getDigit(0)/(a.getDigit(0)+carry);
+  b = this->getDigit(0)/a.getDigit(0)+carry;
   carry = modf(b,&c);
   division.setDigit(0,c);
+  while(division.size() > 1 && division.back() == 0) division.pop_back();
   return division;
 };
 
-// BigNum a must be smaller
+// BigNum a must be smaller and size() == 1
 BigNum BigNum::operator %(const BigNum& a){
-  if(a.back() == 0){
-    return BigNum();
-  }
-  else if(this->back() == 0){
-    return BigNum("0");
-  }
-  else if(a.size() == 1 && a.getDigit(0) == 1){
-    return BigNum("0");
-  }
-  else if(a.size() > this->size()){
-    return *this;
-  }
-  else if(a.size() == this->size() && a.back() > this->back()){
-    return *this;
-  }
-  BigNum division = BigNum();
+  BigNum modulo = new BigInt("0");
+  if(a.back() == 0) return modulo;
+  else if(this->back() == 0) return modulo;
+  else if(a.size() > 1) return *this;
+  else if(a.getDigit(0) == 1) return modulo;
+  else if(this->size() == 1 && a.back() > this->back()) return *this;
   double b,c,carrymod = 0;
   for(unsigned long int i=this->size()-1; i>0; i--){
-    b = this->getDigit(i)/(a.getDigit(i)+carrymod);
+    b = this->getDigit(i)/a.getDigit(i)+carrymod;
     carrymod = modf(b,&c);
     carrymod *= WORD_SIZE;
   }
-  b = this->getDigit(0)/(a.getDigit(0)+carrymod);
+  b = this->getDigit(0)/a.getDigit(0)+carrymod;
   carrymod = modf(b,&c);
-  BigNum product = BigNum();
-  product.resize(a.size());
-  for(unsigned long int i=0; i<a.size(); i++){
-    product.setDigit(i,(long unsigned int)round(carrymod*a.getDigit(i)));
+  modulo.setDigit(0,(long unsigned int)round(carrymod*a.getDigit(i)));
+  while(modulo.back() == 0 && modulo.size() > 1){
+    modulo.pop_back();
   }
-  while(product.back() == 0){
-    product.pop_back();
-  }
-  return product;
+  return modulo;
 };
 
 // Can only exponentiate postive integers
