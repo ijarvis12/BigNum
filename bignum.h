@@ -22,7 +22,7 @@ class BigNum{
     void setSign(const bool b);
     void setDigit(const unsigned long int digit, const long int x);
     //Getters
-    bool getSign() const;
+    bool isNegative() const;
     long int getDigit(const unsigned long int digit) const;
     //Vector API
     unsigned long int size() const;
@@ -94,7 +94,7 @@ void BigNum::setDigit(const unsigned long int digit, const long int x){
 };
 
 //Getters
-bool BigNum::getSign() const {
+bool BigNum::isNegative() const {
   return this->sign;
 }
 
@@ -125,7 +125,7 @@ long int BigNum::back() const {
 
 //Operators
 ostream& operator <<(ostream& os, const BigNum& a){
-  if(a.getSign()) os << "-";
+  if(a.isNegative()) os << "-";
   if(a.size() > 0){
     if(a.size() > 1){
       os << a.back();
@@ -157,12 +157,12 @@ ostream& operator <<(ostream& os, const BigNum& a){
 };
 
 bool operator <(const BigNum& first, const BigNum& second){
-  if( (!first.getSign() && !second.getSign()) || (first.getSign() && second.getSign()) ){
+  if( (!first.isNegative() && !second.isNegative()) || (first.isNegative() && second.isNegative()) ){
     if(second.size() < first.size()) return false;
     else if(second.size() == first.size() && second.back() <= first.back()) return false;
     else return true;
   }
-  else if(!first.getSign() && second.getSign()) return false;
+  else if(!first.isNegative() && second.isNegative()) return false;
   else return true;
 }
 
@@ -171,7 +171,7 @@ bool operator >(const BigNum& first, const BigNum second){
 }
 
 BigNum BigNum::operator =(const BigNum& a){
-  this->sign = a.getSign();
+  this->sign = a.isNegative();
   this->resize(a.size());
   for(unsigned long int i=0; i<a.size(); i++){
     this->setDigit(i,a.getDigit(i));
@@ -180,33 +180,33 @@ BigNum BigNum::operator =(const BigNum& a){
 };
 
 BigNum BigNum::operator +(const BigNum& first, const BigNum& second){
-  if(first.getSign() && !second.getSign() && first > second){
+  if(first.isNegative() && !second.isNegative() && first > second){
     BigNum add1 = first;
     first.setSign(false);
     BigNum add2 = add1 - second;
     add2.setSign(true);
     return add2;
   }
-  else if(first.getSign() && !second.getSign() && first < second){
+  else if(first.isNegative() && !second.isNegative() && first < second){
     BigNum add = first;
     add.setSign(false);
     return second - add;
   }
-  else if(first.getSign() && !second.getSign()) return BigNum("0");
-  else if(!first.getSign() && second.getSign() && first > second){
+  else if(first.isNegative() && !second.isNegative()) return BigNum("0");
+  else if(!first.isNegative() && second.isNegative() && first > second){
     BigNum add = second;
     add.setSign(false);
     return first - add;
   }
-  else if(!first.getSign() && second.getSign() && first < second){
+  else if(!first.isNegative() && second.isNegative() && first < second){
     BigNum add1 = second;
     add1.setSign(false);
     BigNum add2 = add1 - first;
     add2.setSign(true);
     return add2;
   }
-  else if(!first.getSign() && second.getSign()) return BigNum("0");
-  else if(first.getSign() && second.getSign()){
+  else if(!first.isNegative() && second.isNegative()) return BigNum("0");
+  else if(first.isNegative() && second.isNegative()){
     BigNum add1 = first;
     BigNum add2 = second;
     add1.setSign(false);
@@ -240,26 +240,26 @@ BigNum BigNum::operator +(const BigNum& first, const BigNum& second){
 };
 
 BigNum BigNum::operator -(const BigNum& first, const BigNum& second){
-  if(first.getSign() && !second.getSign() && first > second){
+  if(first.isNegative() && !second.isNegative() && first > second){
     BigNum sub1 = first;
     sub1.setSign(false);
     BigNum sub2 = sub1 - second;
     sub2.setSign(true);
     return sub2;
   }
-  else if(first.getSign() && !second.getSign() && first < second){
+  else if(first.isNegative() && !second.isNegative() && first < second){
     BigNum sub1 = first;
     sub1.setSign(false);
     BigNum sub2 = second - sub1;
     return sub2;
   }
-  else if(first.getSign() && !second.getSign()) return BigNum("0");
-  else if(!first.getSign() && second.getSign()){
+  else if(first.isNegative() && !second.isNegative()) return BigNum("0");
+  else if(!first.isNegative() && second.isNegative()){
     BigNum sub = second;
     sub.setSign(false);
     return first + sub;
   }
-  else if(first.getSign() && second.getSign()){
+  else if(first.isNegative() && second.isNegative()){
     BigNum sub = a;
     return sub - first;
   }
@@ -287,33 +287,33 @@ BigNum BigNum::operator -(const BigNum& first, const BigNum& second){
 BigNum BigNum::operator *(const BigNum& first, const BigNum& second){
   if(second.back() == 0) return BigNum("0");
   else if(first.back() == 0) return BigNum("0");
-  else if(second.size() == 1 && second.getDigit(0) == 1 && !second.getSign()) return first;
-  else if(second.size() == 1 && second.getDigit(0) == 1 && second.getSign()){
+  else if(second.size() == 1 && second.getDigit(0) == 1 && !second.isNegative()) return first;
+  else if(second.size() == 1 && second.getDigit(0) == 1 && second.isNegative()){
     BigNum prod = first;
     prod.setSign(true);
     return prod;
   }
-  else if(first.size() == 1 && first.getDigit(0) == 1 && !first.getSign()) return second;
-  else if(first.size() == 1 && first.getDigit(0) == 1 && first.getSign()){
+  else if(first.size() == 1 && first.getDigit(0) == 1 && !first.isNegative()) return second;
+  else if(first.size() == 1 && first.getDigit(0) == 1 && first.isNegative()){
     BigNum prod = second;
     prod.setSign(true);
     return prod;
   }
-  else if(first.getSign() && second.getSign()){
+  else if(first.isNegative() && second.isNegative()){
     BigNum prod1 = first;
     BigNum prod2 = second;
     prod1.setSign(false);
     prod2.setSign(false);
     return prod1 * prod2;
   }
-  else if(first.getSign() && !second.getSign()){
+  else if(first.isNegative() && !second.isNegative()){
     BigNum prod1 = first;
     prod1.setSign(false);
     BigNum prod2 = prod1 * second;
     prod2.setSign(true);
     return prod2;
   }
-  else if(!first.getSign() && second.getSign()){
+  else if(!first.isNegative() && second.isNegative()){
     BigNum prod1 = second;
     prod1.setSign(false);
     BigNum prod2 = first * prod1;
@@ -344,10 +344,10 @@ BigNum BigNum::operator /(const BigNum& first, const BigNum& second){
   if(second.back() == 0) return division;
   else if(first.back() == 0) return division;
   else if(second.size() > 1) return first;
-  else if(second.getDigit(0) == 1 && !second.getSign()) return first;
-  else if(second.getDigit(0) == 1 && second.getSign()){
+  else if(second.getDigit(0) == 1 && !second.isNegative()) return first;
+  else if(second.getDigit(0) == 1 && second.isNegative()){
     BigNum div = first;
-    div.setSign(!div.getSign());
+    div.setSign(!div.isNegative());
     return div;
   }
   else if(second.back() > first.back() && first.size() == 1) return division;
@@ -365,8 +365,8 @@ BigNum BigNum::operator /(const BigNum& first, const BigNum& second){
   while(division.back() == 0 && division.size() > 1){
     division.pop_back();
   }
-  if(first.getSign() && second.getSign()) division.setSign(false);
-  else if(first.getSign() || second.getSign()) division.setSign(true);
+  if(first.isNegative() && second.isNegative()) division.setSign(false);
+  else if(first.isNegative() || second.isNegative()) division.setSign(true);
   return division;
 };
 
@@ -390,7 +390,7 @@ BigNum BigNum::operator %(const BigNum& first, const BigNum& second){
   while(modulo.back() == 0 && modulo.size() > 1){
     modulo.pop_back();
   }
-  if(first.getSign()) modulo.setSign(true);
+  if(first.isNegative()) modulo.setSign(true);
   return modulo;
 };
 
