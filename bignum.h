@@ -9,7 +9,7 @@ const char WORD_LEN = 9;
 
 class BigNum{
   private:
-    bool sign; // true (1) = negative, false (0) = postitive
+    bool is_negative; // true (1) = negative, false (0) = postitive
     vector<long int> digits;
   public:
     //Constructors
@@ -41,7 +41,7 @@ class BigNum{
 
 //Constructors
 BigNum::BigNum(){
-  this->sign = false;
+  this->is_negative = false;
   this->resize(0);
 };
 
@@ -49,11 +49,11 @@ BigNum::BigNum(const string& strnum){
   this->resize(0);
   string num = "";
   if(strnum.substr(0,1).compare("-") == 0){
-    this->sign = true;
+    this->is_negative = true;
     strnum.copy(num,strnum.length()-1,1);
   }
   else {
-    this->sign = false;
+    this->is_negative = false;
     strnum.copy(num,strnum.length(),0);
   }
   if(num.length() > WORD_LEN){
@@ -80,13 +80,13 @@ BigNum::BigNum(const long int num){
 
 //Deconstructor
 BigNum::~BigNum(){
-  this->sign = false;
+  this->is_negative = false;
   this->digits.clear();
 };
 
 //Setters
 void BigNum::setSign(const bool b){
-  this->sign = b;
+  this->is_negative = b;
 }
 
 void BigNum::setDigit(const unsigned long int digit, const long int x){
@@ -95,7 +95,7 @@ void BigNum::setDigit(const unsigned long int digit, const long int x){
 
 //Getters
 bool BigNum::ifNegative() const {
-  return this->sign;
+  return this->is_negative;
 }
 
 long int BigNum::getDigit(const unsigned long int digit) const {
@@ -171,7 +171,7 @@ bool operator >(const BigNum& first, const BigNum second){
 }
 
 BigNum BigNum::operator =(const BigNum& a){
-  this->sign = a.ifNegative();
+  this->is_negative = a.ifNegative();
   this->resize(a.size());
   for(unsigned long int i=0; i<a.size(); i++){
     this->setDigit(i,a.getDigit(i));
