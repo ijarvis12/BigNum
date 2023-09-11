@@ -156,7 +156,7 @@ ostream& operator <<(ostream& os, const BigNum& a){
   return os;
 };
 
-bool operator <(const BigNum& a, const BigNum b){
+bool operator <(const BigNum& a, const BigNum& b){
   if( (!a.getSign() && !b.getSign()) || (a.getSign() && b.getSign()) ){
     if(b.size() < a.size()) return false;
     else if(b.size() == a.size() && b.back() <= a.back()) return false;
