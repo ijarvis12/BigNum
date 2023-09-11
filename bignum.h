@@ -245,13 +245,15 @@ BigNum BigNum::operator /(const BigNum& a){
   b = this->getDigit(0)/a.getDigit(0)+carry;
   carry = modf(b,&c);
   division.setDigit(0,c);
-  while(division.size() > 1 && division.back() == 0) division.pop_back();
+  while(division.size() > 1 && division.back() == 0){
+    division.pop_back();
+  }
   return division;
 };
 
 // BigNum a must be smaller and size() == 1
 BigNum BigNum::operator %(const BigNum& a){
-  BigNum modulo = new BigInt("0");
+  BigNum modulo = new BigNum("0");
   if(a.back() == 0) return modulo;
   else if(this->back() == 0) return modulo;
   else if(a.size() > 1) return *this;
