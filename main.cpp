@@ -7,10 +7,10 @@ int main(){
   BigNum i1 = BigNum();
   cout << i1 << endl;
 
-  BigNum i2 = BigNum("1010101010");
+  BigNum i2 = BigNum("-12345678901234567890");
   cout << i2 << endl;
 
-  BigNum i3 = BigNum(1000000100);
+  BigNum i3 = BigNum(-1234567890);
   cout << i3 << endl;
 
   cout << endl;
