@@ -275,21 +275,22 @@ BigNum BigNum::operator %(const BigNum& a){
 };
 
 // Can only exponentiate postive integers
-BigNum pow(const BigNum& a, unsigned long int n){
+BigNum pow(const BigNum& a, const unsigned long int n){
   if(n == 0){
     return BigNum("1");
   }
   BigNum x = a;
   BigNum y = BigNum("1");
-  while(n > 1){
-    if(n % 2 == 0){
+  unsigned long int z = n;
+  while(z > 1){
+    if(z % 2 == 0){
       x = x * x;
-      n /= 2;
+      z = (unsigned long int)(z / 2);
     }
     else{
       y = x * y;
       x = x * x;
-      n = (unsigned long int)((n - 1) / 2);
+      z = (unsigned long int)((z - 1) / 2);
     }
   }
   return x * y;
