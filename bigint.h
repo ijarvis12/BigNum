@@ -35,8 +35,8 @@ class BigInt{
     BigInt operator +(const BigInt& first, const BigInt& second);
     BigInt operator -(const BigInt& first, const BigInt& second);
     BigInt operator *(const BigInt& first, const BigInt& second);
-    BigInt operator /(const BigInt& first, const BigInt& second);
-    BigInt operator %(const BigInt& first, const BigInt& second);
+    double operator /(const BigInt& first, const BigInt& second);
+    double operator %(const BigInt& first, const BigInt& second);
 };
 
 //Constructors
@@ -337,60 +337,99 @@ BigInt BigInt::operator *(const BigInt& first, const BigInt& second){
   return product;
 };
 
-//BigInt second must be smaller and second.size() == 1
-BigInt BigInt::operator /(const BigInt& first, const BigInt& second){
-  BigInt division = new BigInt("0");
+//BigInt second must be smaller
+double BigInt::operator /(const BigInt& first, const BigInt& second){
+  BigInt division = 0.0;
   if(second.back() == 0) return division;
   else if(first.back() == 0) return division;
-  else if(second.size() > 1) return first;
-  else if(second.getDigit(0) == 1 && !second.ifNegative()) return first;
-  else if(second.getDigit(0) == 1 && second.ifNegative()){
-    BigInt div = first;
-    div.setNegative(!div.ifNegative());
-    return div;
+  else if(second.size() == 1){
+    if(second.getDigit(0) == 1 && !second.ifNegative()) return first;
+    else if(second.getDigit(0) == 1 && second.ifNegative()){
+      BigInt div = first;
+      div.setNegative(!div.ifNegative());
+      return div;
+    }
   }
-  else if(second.back() > first.back() && first.size() == 1) return division;
-  division.resize(first.size());
-  double b,c,carry = 0;
-  for(unsigned long int i=first.size()-1; i>0; i--){
-    b = first.getDigit(i)/second.getDigit(0)+carry;
-    carry = modf(b,&c);
-    division.setDigit(i,c);
-    carry *= WORD_SIZE;
+  else if(first.size() == 1 && second.size() == 1) return first.back() / second.back();
+  else{
+    BigInt f = first;
+    double first_to_double = f.pop_back();
+    unsigned long int i = first.size();
+    while(i > 0){
+      first_to_double *= WORD_SIZE;
+      i--;
+    }
+    if(f.size() > 0){
+      double sec_part = f.pop_back();
+      i = first.size();
+      while(i > 0){
+        sec_part *= WORD_SIZE;
+        i--;
+      }
+      first_to_double += sec_part;
+    }
+    BigInt s = second;
+    double second_to_double = s.pop_back();
+    i = second.size();
+    while(i > 0){
+      second_to_double *= WORD_SIZE;
+      i--;
+    }
+    if(s.size() > 0){
+      double sec_part = s.pop_back();
+      i = second.size();
+      while(i > 0){
+        sec_part *= WORD_SIZE;
+        i--;
+      }
+      second_to_double += sec_part;
+    }
+    return first_to_double / second_to_double;
   }
-  b = first.getDigit(0)/second.getDigit(0)+carry;
-  carry = modf(b,&c);
-  division.setDigit(0,c);
-  while(division.back() == 0 && division.size() > 1){
-    division.pop_back();
-  }
-  if(first.ifNegative() && second.ifNegative()) division.setNegative(false);
-  else if(first.ifNegative() || second.ifNegative()) division.setNegative(true);
-  return division;
 };
 
-// BigInt second must be smaller and second.size() == 1
-BigInt BigInt::operator %(const BigInt& first, const BigInt& second){
-  BigInt modulo = new BigInt("0");
+// BigInt second must be smaller
+double BigInt::operator %(const BigInt& first, const BigInt& second){
+  BigInt modulo = 0.0;
   if(second.back() == 0) return modulo;
   else if(first.back() == 0) return modulo;
-  else if(second.size() > 1) return first;
-  else if(second.getDigit(0) == 1) return modulo;
-  else if(first.size() == 1 && second.back() > first.back()) return first;
-  double b,c,carrymod = 0;
-  for(unsigned long int i=first.size()-1; i>0; i--){
-    b = first.getDigit(i)/second.getDigit(0)+carrymod;
-    carrymod = modf(b,&c);
-    carrymod *= WORD_SIZE;
+  else if(second.size() == 1 && second.getDigit(0) == 1) return modulo;
+  else if(first.size() == 1 && second.size() == 1) return first.back() / second.back();
+  else{
+    BigInt f = first;
+    double first_to_double = f.pop_back();
+    unsigned long int i = first.size();
+    while(i > 0){
+      first_to_double *= WORD_SIZE;
+      i--;
+    }
+    if(f.size() > 0){
+      double sec_part = f.pop_back();
+      i = first.size();
+      while(i > 0){
+        sec_part *= WORD_SIZE;
+        i--;
+      }
+      first_to_double += sec_part;
+    }
+    BigInt s = second;
+    double second_to_double = s.pop_back();
+    i = second.size();
+    while(i > 0){
+      second_to_double *= WORD_SIZE;
+      i--;
+    }
+    if(s.size() > 0){
+      double sec_part = s.pop_back();
+      i = second.size();
+      while(i > 0){
+        sec_part *= WORD_SIZE;
+        i--;
+      }
+      second_to_double += sec_part;
+    }
+    return first_to_double % second_to_double;
   }
-  b = first.getDigit(0)/second.getDigit(0)+carrymod;
-  carrymod = modf(b,&c);
-  modulo.setDigit(0,(long unsigned int)round(carrymod*second.getDigit(i)));
-  while(modulo.back() == 0 && modulo.size() > 1){
-    modulo.pop_back();
-  }
-  if(first.ifNegative()) modulo.setNegative(true);
-  return modulo;
 };
 
 // Can only exponentiate postive n powers, but BigInt a can be negative
