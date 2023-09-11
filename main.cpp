@@ -22,16 +22,16 @@ int main(){
   BigInt t2 = BigInt("1000000000") - BigInt("999999999");
   cout << t2 << endl;
 
-  BigInt t3 = BigInt("9999999999") * BigInt("333");
+  double t3 = BigInt("9999999999") * BigInt("333");
   cout << t3 << endl;
 
-  BigInt t4 = pow(BigInt("2"),36);
+  double t4 = BigInt("9999999999") / BigInt("333");
   cout << t4 << endl;
 
-  BigInt t5 = BigInt("9999999999") / BigInt("333");
+  BigInt t5 = BigInt("9999999999999999") % BigInt("3333333333");
   cout << t5 << endl;
 
-  BigInt t6 = BigInt("9999999999999999") % BigInt("3333333333");
+  BigInt t6 = pow(BigInt("2"),36);
   cout << t6 << endl;
 
   return 0;
