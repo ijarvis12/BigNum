@@ -9,17 +9,20 @@ const char WORD_LEN = 9;
 
 class BigNum{
   private:
+    bool sign; // true (1) = negative, false (0) = postitive
     vector<long int> digits;
   public:
     //Constructors
     BigNum();
     BigNum(const string& num);
-    BigNum(const unsigned long int num);
+    BigNum(const long int num);
     //Deconstructor
     ~BigNum();
-    //Setter
+    //Setters
+    void setSign(const bool b);
     void setDigit(const unsigned long int digit, const long int x);
-    //Getter
+    //Getters
+    bool getSign() const;
     long int getDigit(const unsigned long int digit) const;
     //Vector API
     unsigned long int size() const;
@@ -38,11 +41,21 @@ class BigNum{
 
 //Constructors
 BigNum::BigNum(){
+  this->sign = false;
   this->resize(0);
 };
 
-BigNum::BigNum(const string& num){
+BigNum::BigNum(const string& strnum){
   this->resize(0);
+  string num = "";
+  if(strnum.substr(0,1).compare("-") == 0){
+    this->sign = true;
+    strnum.copy(num,strnum.length()-1,1);
+  }
+  else {
+    this->sign = false;
+    strnum.copy(num,strnum.length(),0);
+  }
   if(num.length() > WORD_LEN){
     for(long int i=num.length()-WORD_LEN; i>0; i-=WORD_LEN){
       this->push_back(stoi(num.substr(i,WORD_LEN)));
@@ -60,22 +73,31 @@ BigNum::BigNum(const string& num){
   }
 };
 
-BigNum::BigNum(const unsigned long int num){
+BigNum::BigNum(const long int num){
   string x = to_string(num);
   *this = BigNum(x);
 };
 
 //Deconstructor
 BigNum::~BigNum(){
+  this->sign = false;
   this->digits.clear();
 };
 
-//Setter
+//Setters
+void BigNum::setSign(const bool b){
+  this->sign = b;
+}
+
 void BigNum::setDigit(const unsigned long int digit, const long int x){
   this->digits[digit] = x;
 };
 
-//Getter
+//Getters
+bool BigNum::getSign() const {
+  return this->sign;
+}
+
 long int BigNum::getDigit(const unsigned long int digit) const {
   return this->digits[digit];
 };
@@ -103,6 +125,7 @@ long int BigNum::back() const {
 
 //Operators
 ostream& operator <<(ostream& os, const BigNum& a){
+  if(a.getSign()) os << "-";
   if(a.size() > 0){
     if(a.size() > 1){
       os << a.back();
@@ -133,7 +156,28 @@ ostream& operator <<(ostream& os, const BigNum& a){
   return os;
 };
 
+bool operator <(const BigNum& a, const BigNum b){
+  if( (!a.getSign() && !b.getSign()) || (a.getSign() && b.getSign()) ){
+    if(b.size() > a.size()) return false;
+    else if(b.size() == a.size() && b.back() >= a.back()) return false;
+    else return true;
+  }
+  else if(!a.getSign() && b.getSign()) return false;
+  else return true;
+}
+
+bool operator >(const BigNum& a, const BigNum b){
+  if( (!a.getSign() && !b.getSign()) || (a.getSign() && b.getSign()) ){
+    if(a.size() > b.size()) return false;
+    else if(a.size() == b.size() && a.back() <= b.back()) return false;
+    else return true;
+  }
+  else if(!b.getSign() && a.getSign()) return false;
+  else return true;
+}
+
 BigNum BigNum::operator =(const BigNum& a){
+  this->sign = a.getSign();
   this->resize(a.size());
   for(unsigned long int i=0; i<a.size(); i++){
     this->setDigit(i,a.getDigit(i));
@@ -142,6 +186,35 @@ BigNum BigNum::operator =(const BigNum& a){
 };
 
 BigNum BigNum::operator +(const BigNum& a){
+  if(this->getSign() && !a.getSign() && *this > a){
+    this->setSign(false);
+    BigNum addtion = *this - a;
+    addition.setSign(true);
+    return addtion;
+  }
+  else if(this->getSign() && !a.getSign() && *this < a){
+    this->setSign(false);
+    return a - *this;
+  }
+  else if(this->getSign() && !a.getSign()) return BigNum("0");
+  else if(!this->getSign() && a.getSign() && *this > a){
+    a.setSign(false);
+    return *this - a;
+  }
+  else if(!this->getSign() && a.getSign() && *this < a){
+    a.setSign(false);
+    BigNum addition = a - *this;
+    addition.setSign(true);
+    return addtion;
+  }
+  else if(!this->getSign() && a.getSign()) return BigNum("0");
+  else if(this->getSign() && a.getSign()){
+    this->setSign(false);
+    a.setSign(false);
+    BigNum addition = *this + a;
+    addition.setSign(true);
+    return addtion;
+  }
   BigNum addition = *this;
   for(unsigned long int i=0; i<a.size(); i++){
     if(i > addition.size()-1){
@@ -166,13 +239,26 @@ BigNum BigNum::operator +(const BigNum& a){
   return addition;
 };
 
-// Can only do subtraction that ends with a positive number, for now
 BigNum BigNum::operator -(const BigNum& a){
-  if(this->size() < a.size()){
-    return BigNum("0");
+  if(this->getSign() && !a.getSign() && *this > a){
+    this->setSign(false);
+    BigNum subtract = *this - a;
+    subtract.setSign(true);
+    return subtract;
   }
-  else if(this->size() == a.size() && this->back() < a.back()){
-    return BigNum("0");
+  else if(this->getSign() && !a.getSign() && *this < a){
+    this->setSign(false);
+    BigNum subtract = a - *this;
+    return subtract;
+  }
+  else if(this->getSign() && !a.getSign()) return BigNum("0");
+  else if(!this->getSign() && a.getSign()){
+    a.setSign(false);
+    return *this + a;
+  }
+  else if(this->getSign() && a.getSign()){
+    BigNum subtract = a;
+    return subtract - *this;
   }
   BigNum subtract = *this;
   for(unsigned long int i=0; i<a.size(); i++){
@@ -196,17 +282,34 @@ BigNum BigNum::operator -(const BigNum& a){
 // Use long multiplcation
 //https://en.wikipedia.org/wiki/Multiplication_algorithm
 BigNum BigNum::operator *(const BigNum& a){
-  if(a.back() == 0){
-    return BigNum("0");
-  }
-  else if(this->back() == 0){
-    return BigNum("0");
-  }
-  else if(a.size() == 1 && a.getDigit(0) == 1){
+  if(a.back() == 0) return BigNum("0");
+  else if(this->back() == 0) return BigNum("0");
+  else if(a.size() == 1 && a.getDigit(0) == 1 && !a.getSign()) return *this;
+  else if(a.size() == 1 && a.getDigit(0) == 1 && a.getSign()){
+    this->setSign(true);
     return *this;
   }
-  else if(this->size() == 1 && this->getDigit(0) == 1){
+  else if(this->size() == 1 && this->getDigit(0) == 1 && !this->getSign()) return a;
+  else if(this->size() == 1 && this->getDigit(0) == 1 && this->getSign()){
+    a.setSign(true);
     return a;
+  }
+  else if(this->getSign() && a.getSign()){
+    this->setSign(false);
+    a.setSign(false);
+    return *this * a;
+  }
+  else if(this->getSign() && !a.getSign()){
+    this->setSign(false);
+    BigNum product = *this * a;
+    product.setSign(true);
+    return product;
+  }
+  else if(!this->getSign() && a.getSign()){
+    a.setSign(false);
+    BigNum product = *this * a;
+    product.setSign(true);
+    return product;
   }
   BigNum product = BigNum();
   product.resize(this->size()+a.size());
@@ -226,13 +329,17 @@ BigNum BigNum::operator *(const BigNum& a){
   return product;
 };
 
-//BigNum a must be smaller and size() == 1
+//BigNum a must be smaller and a.size() == 1
 BigNum BigNum::operator /(const BigNum& a){
   BigNum division = new BigNum("0");
   if(a.back() == 0) return division;
   else if(this->back() == 0) return division;
   else if(a.size() > 1) return *this;
-  else if(a.getDigit(0) == 1) return *this;
+  else if(a.getDigit(0) == 1 && !a.getSign()) return *this;
+  else if(a.getDigit(0) == 1 && a.getSign()){
+    this->setSign(true);
+    return *this;
+  }
   else if(a.back() > this->back() && this->size() == 1) return division;
   division.resize(this.size());
   double b,c,carry = 0;
@@ -248,10 +355,12 @@ BigNum BigNum::operator /(const BigNum& a){
   while(division.back() == 0 && division.size() > 1){
     division.pop_back();
   }
+  if(this->getSign() && a.getSign()) division.setSign(false);
+  else if(this->getSign() || a.getSign()) division.setSign(true);
   return division;
 };
 
-// BigNum a must be smaller and size() == 1
+// BigNum a must be smaller and a.size() == 1
 BigNum BigNum::operator %(const BigNum& a){
   BigNum modulo = new BigNum("0");
   if(a.back() == 0) return modulo;
@@ -271,10 +380,11 @@ BigNum BigNum::operator %(const BigNum& a){
   while(modulo.back() == 0 && modulo.size() > 1){
     modulo.pop_back();
   }
+  if(this->getSign()) modulo.setSign(true);
   return modulo;
 };
 
-// Can only exponentiate postive integers
+// Can only exponentiate postive integers, but a can be negative
 BigNum pow(const BigNum& a, const unsigned long int n){
   if(n == 0){
     return BigNum("1");
