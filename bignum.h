@@ -248,10 +248,9 @@ BigNum BigNum::operator -(const BigNum& first, const BigNum& second){
     return sub2;
   }
   else if(first.ifNegative() && !second.ifNegative() && first < second){
-    BigNum sub1 = first;
-    sub1.setNegative(false);
-    BigNum sub2 = second - sub1;
-    return sub2;
+    BigNum sub = first;
+    sub.setNegative(false);
+    return second - sub;
   }
   else if(first.ifNegative() && !second.ifNegative()) return BigNum("0");
   else if(!first.ifNegative() && second.ifNegative()){
