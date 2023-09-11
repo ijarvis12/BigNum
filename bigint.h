@@ -337,7 +337,6 @@ BigInt BigInt::operator *(const BigInt& first, const BigInt& second){
   return product;
 };
 
-//BigInt second must be smaller
 double BigInt::operator /(const BigInt& first, const BigInt& second){
   BigInt division = 0.0;
   if(second.back() == 0) return division;
@@ -353,8 +352,9 @@ double BigInt::operator /(const BigInt& first, const BigInt& second){
   else if(first.size() == 1 && second.size() == 1) return first.back() / second.back();
   else{
     BigInt f = first;
-    double first_to_double = f.pop_back();
+    double first_to_double = f.pop_back()
     unsigned long int i = first.size();
+    if(i > 33) return 0.0;
     while(i > 0){
       first_to_double *= WORD_SIZE;
       i--;
@@ -371,6 +371,7 @@ double BigInt::operator /(const BigInt& first, const BigInt& second){
     BigInt s = second;
     double second_to_double = s.pop_back();
     i = second.size();
+    if(i > 33) return 0.0;
     while(i > 0){
       second_to_double *= WORD_SIZE;
       i--;
@@ -384,6 +385,8 @@ double BigInt::operator /(const BigInt& first, const BigInt& second){
       }
       second_to_double += sec_part;
     }
+    if(f.ifNegative()) first_to_double *= -1;
+    if(s.ifNegative()) second_to_double *= -1;
     return first_to_double / second_to_double;
   }
 };
@@ -399,6 +402,7 @@ double BigInt::operator %(const BigInt& first, const BigInt& second){
     BigInt f = first;
     double first_to_double = f.pop_back();
     unsigned long int i = first.size();
+    if(i > 33) return 0.0;
     while(i > 0){
       first_to_double *= WORD_SIZE;
       i--;
@@ -415,6 +419,7 @@ double BigInt::operator %(const BigInt& first, const BigInt& second){
     BigInt s = second;
     double second_to_double = s.pop_back();
     i = second.size();
+    if(i > 33) return 0.0;
     while(i > 0){
       second_to_double *= WORD_SIZE;
       i--;
@@ -428,6 +433,8 @@ double BigInt::operator %(const BigInt& first, const BigInt& second){
       }
       second_to_double += sec_part;
     }
+    if(f.ifNegative()) first_to_double *= -1;
+    if(s.ifNegative()) second_to_double *= -1;
     return first_to_double % second_to_double;
   }
 };
