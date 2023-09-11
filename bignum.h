@@ -394,7 +394,7 @@ BigNum BigNum::operator %(const BigNum& first, const BigNum& second){
   return modulo;
 };
 
-// Can only exponentiate postive integers, but a can be negative
+// Can only exponentiate postive n powers, but BigNum a can be negative
 BigNum pow(const BigNum& a, const unsigned long int n){
   if(n == 0){
     return BigNum("1");
