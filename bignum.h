@@ -187,7 +187,7 @@ BigNum BigNum::operator -(const BigNum& a){
       }
     }
   }
-  while(subtract.back() == 0){
+  while(subtract.back() == 0 && subtract.size() > 1){
     subtract.pop_back();
   }
   return subtract;
@@ -245,7 +245,7 @@ BigNum BigNum::operator /(const BigNum& a){
   b = this->getDigit(0)/a.getDigit(0)+carry;
   carry = modf(b,&c);
   division.setDigit(0,c);
-  while(division.size() > 1 && division.back() == 0){
+  while(division.back() == 0 && division.size() > 1){
     division.pop_back();
   }
   return division;
