@@ -331,7 +331,7 @@ BigNum BigNum::operator /(const BigNum& a){
   else if(a.size() > 1) return *this;
   else if(a.getDigit(0) == 1 && !a.getSign()) return *this;
   else if(a.getDigit(0) == 1 && a.getSign()){
-    this->setSign(true);
+    this->setSign(!this->getSign());
     return *this;
   }
   else if(a.back() > this->back() && this->size() == 1) return division;
