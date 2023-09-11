@@ -32,11 +32,11 @@ class BigNum{
     long int back() const;
     //Operators
     BigNum operator =(const BigNum& a);
-    BigNum operator +(const BigNum& a);
-    BigNum operator -(const BigNum& a);
-    BigNum operator *(const BigNum& a);
-    BigNum operator /(const BigNum& a);
-    BigNum operator %(const BigNum& a);
+    BigNum operator +(const BigNum& first, const BigNum& second);
+    BigNum operator -(const BigNum& first, const BigNum& second);
+    BigNum operator *(const BigNum& first, const BigNum& second);
+    BigNum operator /(const BigNum& first, const BigNum& second);
+    BigNum operator %(const BigNum& first, const BigNum& second);
 };
 
 //Constructors
@@ -156,18 +156,18 @@ ostream& operator <<(ostream& os, const BigNum& a){
   return os;
 };
 
-bool operator <(const BigNum& a, const BigNum& b){
-  if( (!a.getSign() && !b.getSign()) || (a.getSign() && b.getSign()) ){
-    if(b.size() < a.size()) return false;
-    else if(b.size() == a.size() && b.back() <= a.back()) return false;
+bool operator <(const BigNum& first, const BigNum& second){
+  if( (!first.getSign() && !second.getSign()) || (first.getSign() && second.getSign()) ){
+    if(second.size() < first.size()) return false;
+    else if(second.size() == first.size() && second.back() <= first.back()) return false;
     else return true;
   }
-  else if(!a.getSign() && b.getSign()) return false;
+  else if(!first.getSign() && second.getSign()) return false;
   else return true;
 }
 
-bool operator >(const BigNum& a, const BigNum b){
-  return !(a < b);
+bool operator >(const BigNum& first, const BigNum second){
+  return !(first < second);
 }
 
 BigNum BigNum::operator =(const BigNum& a){
@@ -179,50 +179,56 @@ BigNum BigNum::operator =(const BigNum& a){
   return *this;
 };
 
-BigNum BigNum::operator +(const BigNum& a){
-  if(this->getSign() && !a.getSign() && *this > a){
-    this->setSign(false);
-    BigNum addtion = *this - a;
-    addition.setSign(true);
-    return addtion;
+BigNum BigNum::operator +(const BigNum& first, const BigNum& second){
+  if(first.getSign() && !second.getSign() && first > second){
+    BigNum add1 = first;
+    first.setSign(false);
+    BigNum add2 = add1 - second;
+    add2.setSign(true);
+    return add2;
   }
-  else if(this->getSign() && !a.getSign() && *this < a){
-    this->setSign(false);
-    return a - *this;
+  else if(first.getSign() && !second.getSign() && first < second){
+    BigNum add = first;
+    add.setSign(false);
+    return second - add;
   }
-  else if(this->getSign() && !a.getSign()) return BigNum("0");
-  else if(!this->getSign() && a.getSign() && *this > a){
-    a.setSign(false);
-    return *this - a;
+  else if(first.getSign() && !second.getSign()) return BigNum("0");
+  else if(!first.getSign() && second.getSign() && first > second){
+    BigNum add = second;
+    add.setSign(false);
+    return first - add;
   }
-  else if(!this->getSign() && a.getSign() && *this < a){
-    a.setSign(false);
-    BigNum addition = a - *this;
-    addition.setSign(true);
-    return addtion;
+  else if(!first.getSign() && second.getSign() && first < second){
+    BigNum add1 = second;
+    add1.setSign(false);
+    BigNum add2 = add1 - first;
+    add2.setSign(true);
+    return add2;
   }
-  else if(!this->getSign() && a.getSign()) return BigNum("0");
-  else if(this->getSign() && a.getSign()){
-    this->setSign(false);
-    a.setSign(false);
-    BigNum addition = *this + a;
-    addition.setSign(true);
-    return addtion;
+  else if(!first.getSign() && second.getSign()) return BigNum("0");
+  else if(first.getSign() && second.getSign()){
+    BigNum add1 = first;
+    BigNum add2 = second;
+    add1.setSign(false);
+    add2.setSign(false);
+    BigNum add3 = add1 + add2;
+    add3.setSign(true);
+    return add3;
   }
-  BigNum addition = *this;
-  for(unsigned long int i=0; i<a.size(); i++){
+  BigNum addition = first;
+  for(unsigned long int i=0; i<second.size(); i++){
     if(i > addition.size()-1){
       addition.push_back(0);
     }
-    addition.setDigit(i,addition.getDigit(i)+a.getDigit(i));
+    addition.setDigit(i, addition.getDigit(i) + second.getDigit(i));
     for(unsigned long int j=i; j<addition.size(); j++){
       while(addition.getDigit(j) > (WORD_SIZE - 1)){
-        addition.setDigit(j,addition.getDigit(j)-WORD_SIZE);
-        if(j+1 > addition.size()-1){
+        addition.setDigit(j, addition.getDigit(j) - WORD_SIZE);
+        if(j+1 > (addition.size() - 1)){
           addition.push_back(1);
         }
         else{
-          addition.setDigit(j+1,addition.getDigit(j+1)+1);
+          addition.setDigit(j+1, addition.getDigit(j+1) + 1);
         }
       }
       if(addition.getDigit(j+1) < WORD_SIZE){
@@ -233,34 +239,37 @@ BigNum BigNum::operator +(const BigNum& a){
   return addition;
 };
 
-BigNum BigNum::operator -(const BigNum& a){
-  if(this->getSign() && !a.getSign() && *this > a){
-    this->setSign(false);
-    BigNum subtract = *this - a;
-    subtract.setSign(true);
-    return subtract;
+BigNum BigNum::operator -(const BigNum& first, const BigNum& second){
+  if(first.getSign() && !second.getSign() && first > second){
+    BigNum sub1 = first;
+    sub1.setSign(false);
+    BigNum sub2 = sub1 - second;
+    sub2.setSign(true);
+    return sub2;
   }
-  else if(this->getSign() && !a.getSign() && *this < a){
-    this->setSign(false);
-    BigNum subtract = a - *this;
-    return subtract;
+  else if(first.getSign() && !second.getSign() && first < second){
+    BigNum sub1 = first;
+    sub1.setSign(false);
+    BigNum sub2 = second - sub1;
+    return sub2;
   }
-  else if(this->getSign() && !a.getSign()) return BigNum("0");
-  else if(!this->getSign() && a.getSign()){
-    a.setSign(false);
-    return *this + a;
+  else if(first.getSign() && !second.getSign()) return BigNum("0");
+  else if(!first.getSign() && second.getSign()){
+    BigNum sub = second;
+    sub.setSign(false);
+    return first + sub;
   }
-  else if(this->getSign() && a.getSign()){
-    BigNum subtract = a;
-    return subtract - *this;
+  else if(first.getSign() && second.getSign()){
+    BigNum sub = a;
+    return sub - first;
   }
-  BigNum subtract = *this;
-  for(unsigned long int i=0; i<a.size(); i++){
-    subtract.setDigit(i,subtract.getDigit(i)-a.getDigit(i));
+  BigNum subtract = first;
+  for(unsigned long int i=0; i<second.size(); i++){
+    subtract.setDigit(i, subtract.getDigit(i)-second.getDigit(i));
     for(unsigned long int j=i; j<subtract.size()-1; j++){
       while(subtract.getDigit(j) < 0){
-        subtract.setDigit(j,subtract.getDigit(j)+WORD_SIZE);
-        subtract.setDigit(j+1,subtract.getDigit(j+1)-1);
+        subtract.setDigit(j, subtract.getDigit(j) + WORD_SIZE);
+        subtract.setDigit(j+1, subtract.getDigit(j+1) - 1);
       }
       if(subtract.getDigit(j+1) > -1){
         break;
@@ -275,47 +284,53 @@ BigNum BigNum::operator -(const BigNum& a){
 
 // Use long multiplcation
 //https://en.wikipedia.org/wiki/Multiplication_algorithm
-BigNum BigNum::operator *(const BigNum& a){
-  if(a.back() == 0) return BigNum("0");
-  else if(this->back() == 0) return BigNum("0");
-  else if(a.size() == 1 && a.getDigit(0) == 1 && !a.getSign()) return *this;
-  else if(a.size() == 1 && a.getDigit(0) == 1 && a.getSign()){
-    this->setSign(true);
-    return *this;
+BigNum BigNum::operator *(const BigNum& first, const BigNum& second){
+  if(second.back() == 0) return BigNum("0");
+  else if(first.back() == 0) return BigNum("0");
+  else if(second.size() == 1 && second.getDigit(0) == 1 && !second.getSign()) return first;
+  else if(second.size() == 1 && second.getDigit(0) == 1 && second.getSign()){
+    BigNum prod = first;
+    prod.setSign(true);
+    return prod;
   }
-  else if(this->size() == 1 && this->getDigit(0) == 1 && !this->getSign()) return a;
-  else if(this->size() == 1 && this->getDigit(0) == 1 && this->getSign()){
-    a.setSign(true);
-    return a;
+  else if(first.size() == 1 && first.getDigit(0) == 1 && !first.getSign()) return second;
+  else if(first.size() == 1 && first.getDigit(0) == 1 && first.getSign()){
+    BigNum prod = second;
+    prod.setSign(true);
+    return prod;
   }
-  else if(this->getSign() && a.getSign()){
-    this->setSign(false);
-    a.setSign(false);
-    return *this * a;
+  else if(first.getSign() && second.getSign()){
+    BigNum prod1 = first;
+    BigNum prod2 = second;
+    prod1.setSign(false);
+    prod2.setSign(false);
+    return prod1 * prod2;
   }
-  else if(this->getSign() && !a.getSign()){
-    this->setSign(false);
-    BigNum product = *this * a;
-    product.setSign(true);
-    return product;
+  else if(first.getSign() && !second.getSign()){
+    BigNum prod1 = first;
+    prod1.setSign(false);
+    BigNum prod2 = prod1 * second;
+    prod2.setSign(true);
+    return prod2;
   }
-  else if(!this->getSign() && a.getSign()){
-    a.setSign(false);
-    BigNum product = *this * a;
-    product.setSign(true);
-    return product;
+  else if(!first.getSign() && second.getSign()){
+    BigNum prod1 = second;
+    prod1.setSign(false);
+    BigNum prod2 = first * prod1;
+    prod2.setSign(true);
+    return prod2;
   }
   BigNum product = BigNum();
-  product.resize(this->size()+a.size());
+  product.resize(first.size()+second.size());
   unsigned long int carry;
-  for(unsigned long int b_i=0; b_i<a.size(); b_i++){
+  for(unsigned long int b_i=0; b_i<second.size(); b_i++){
     carry = 0;
-    for(unsigned long int a_i=0; a_i<this->size(); a_i++){
-      product.setDigit(a_i+b_i,product.getDigit(a_i+b_i)+carry+this->getDigit(a_i)*a.getDigit(b_i));
+    for(unsigned long int a_i=0; a_i<first.size(); a_i++){
+      product.setDigit(a_i+b_i, product.getDigit(a_i+b_i)+carry+first.getDigit(a_i)*second.getDigit(b_i));
       carry = (unsigned long int)(product.getDigit(a_i+b_i) / WORD_SIZE);
-      product.setDigit(a_i+b_i,product.getDigit(a_i+b_i)%WORD_SIZE);
+      product.setDigit(a_i+b_i, product.getDigit(a_i+b_i) % WORD_SIZE);
     }
-    product.setDigit(b_i+this->size(),carry);
+    product.setDigit(b_i+first.size(),carry);
   }
   while(product.back() == 0){
     product.pop_back();
@@ -323,58 +338,59 @@ BigNum BigNum::operator *(const BigNum& a){
   return product;
 };
 
-//BigNum a must be smaller and a.size() == 1
-BigNum BigNum::operator /(const BigNum& a){
+//BigNum second must be smaller and second.size() == 1
+BigNum BigNum::operator /(const BigNum& first, const BigNum& second){
   BigNum division = new BigNum("0");
-  if(a.back() == 0) return division;
-  else if(this->back() == 0) return division;
-  else if(a.size() > 1) return *this;
-  else if(a.getDigit(0) == 1 && !a.getSign()) return *this;
-  else if(a.getDigit(0) == 1 && a.getSign()){
-    this->setSign(!this->getSign());
-    return *this;
+  if(second.back() == 0) return division;
+  else if(first.back() == 0) return division;
+  else if(second.size() > 1) return first;
+  else if(second.getDigit(0) == 1 && !second.getSign()) return first;
+  else if(second.getDigit(0) == 1 && second.getSign()){
+    BigNum div = first;
+    div.setSign(!div.getSign());
+    return div;
   }
-  else if(a.back() > this->back() && this->size() == 1) return division;
-  division.resize(this.size());
+  else if(second.back() > first.back() && first.size() == 1) return division;
+  division.resize(first.size());
   double b,c,carry = 0;
-  for(unsigned long int i=this->size()-1; i>0; i--){
-    b = this->getDigit(i)/a.getDigit(0)+carry;
+  for(unsigned long int i=first.size()-1; i>0; i--){
+    b = first.getDigit(i)/second.getDigit(0)+carry;
     carry = modf(b,&c);
     division.setDigit(i,c);
     carry *= WORD_SIZE;
   }
-  b = this->getDigit(0)/a.getDigit(0)+carry;
+  b = first.getDigit(0)/second.getDigit(0)+carry;
   carry = modf(b,&c);
   division.setDigit(0,c);
   while(division.back() == 0 && division.size() > 1){
     division.pop_back();
   }
-  if(this->getSign() && a.getSign()) division.setSign(false);
-  else if(this->getSign() || a.getSign()) division.setSign(true);
+  if(first.getSign() && second.getSign()) division.setSign(false);
+  else if(first.getSign() || second.getSign()) division.setSign(true);
   return division;
 };
 
-// BigNum a must be smaller and a.size() == 1
-BigNum BigNum::operator %(const BigNum& a){
+// BigNum second must be smaller and second.size() == 1
+BigNum BigNum::operator %(const BigNum& first, const BigNum& second){
   BigNum modulo = new BigNum("0");
-  if(a.back() == 0) return modulo;
-  else if(this->back() == 0) return modulo;
-  else if(a.size() > 1) return *this;
-  else if(a.getDigit(0) == 1) return modulo;
-  else if(this->size() == 1 && a.back() > this->back()) return *this;
+  if(second.back() == 0) return modulo;
+  else if(first.back() == 0) return modulo;
+  else if(second.size() > 1) return first;
+  else if(second.getDigit(0) == 1) return modulo;
+  else if(first.size() == 1 && second.back() > first.back()) return first;
   double b,c,carrymod = 0;
-  for(unsigned long int i=this->size()-1; i>0; i--){
-    b = this->getDigit(i)/a.getDigit(i)+carrymod;
+  for(unsigned long int i=first.size()-1; i>0; i--){
+    b = first.getDigit(i)/second.getDigit(0)+carrymod;
     carrymod = modf(b,&c);
     carrymod *= WORD_SIZE;
   }
-  b = this->getDigit(0)/a.getDigit(0)+carrymod;
+  b = first.getDigit(0)/second.getDigit(0)+carrymod;
   carrymod = modf(b,&c);
-  modulo.setDigit(0,(long unsigned int)round(carrymod*a.getDigit(i)));
+  modulo.setDigit(0,(long unsigned int)round(carrymod*second.getDigit(i)));
   while(modulo.back() == 0 && modulo.size() > 1){
     modulo.pop_back();
   }
-  if(this->getSign()) modulo.setSign(true);
+  if(first.getSign()) modulo.setSign(true);
   return modulo;
 };
 
