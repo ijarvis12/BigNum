@@ -158,8 +158,8 @@ ostream& operator <<(ostream& os, const BigNum& a){
 
 bool operator <(const BigNum& a, const BigNum b){
   if( (!a.getSign() && !b.getSign()) || (a.getSign() && b.getSign()) ){
-    if(b.size() > a.size()) return false;
-    else if(b.size() == a.size() && b.back() >= a.back()) return false;
+    if(b.size() < a.size()) return false;
+    else if(b.size() == a.size() && b.back() <= a.back()) return false;
     else return true;
   }
   else if(!a.getSign() && b.getSign()) return false;
@@ -167,13 +167,7 @@ bool operator <(const BigNum& a, const BigNum b){
 }
 
 bool operator >(const BigNum& a, const BigNum b){
-  if( (!a.getSign() && !b.getSign()) || (a.getSign() && b.getSign()) ){
-    if(a.size() > b.size()) return false;
-    else if(a.size() == b.size() && a.back() <= b.back()) return false;
-    else return true;
-  }
-  else if(!b.getSign() && a.getSign()) return false;
-  else return true;
+  return !(a < b);
 }
 
 BigNum BigNum::operator =(const BigNum& a){
