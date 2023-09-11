@@ -43,20 +43,20 @@ BigNum::BigNum(){
 
 BigNum::BigNum(const string& num){
   this->resize(0);
-  if(num.length() > (WORD_LEN*2 - 1)){
-    for(unsigned long int i=num.length()-WORD_LEN; i>(WORD_LEN-1); i-=WORD_LEN){
-      this->push_back(stol(num.substr(i,WORD_LEN)));
+  if(num.length() > WORD_LEN){
+    for(long int i=num.length()-WORD_LEN; i>0; i-=WORD_LEN){
+      this->push_back(stoi(num.substr(i,WORD_LEN)));
     }
     char mod = (num.length() % WORD_LEN);
     if(mod != 0){
-      this->push_back(stol(num.substr(0,mod)));
+      this->push_back(stoi(num.substr(0,mod)));
     }
     else{
-      this->push_back(stol(num.substr(0,WORD_LEN)));
+      this->push_back(stoi(num.substr(0,WORD_LEN)));
     }
   }
   else{
-    this->push_back(stol(num));
+    this->push_back(stoi(num));
   }
 };
 
