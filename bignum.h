@@ -166,7 +166,7 @@ bool operator <(const BigNum& first, const BigNum& second){
   else return true;
 }
 
-bool operator >(const BigNum& first, const BigNum second){
+bool operator >(const BigNum& first, const BigNum& second){
   return !(first < second);
 }
 
