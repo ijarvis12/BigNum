@@ -52,7 +52,7 @@ BigInt::BigInt(const string& strnum){
   string num = "";
   if(strnum.substr(0,1).compare("-") == 0){
     this->is_negative = true;
-    num = strnum.substr(1,strnum.length()-1);
+    num = strnum.substr(1,strnum.length()-1); //yes it is just len - 1
   }
   else {
     this->is_negative = false;
