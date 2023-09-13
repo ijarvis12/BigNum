@@ -187,47 +187,35 @@ BigInt BigInt::operator =(const BigInt& a){
 };
 
 BigInt operator +(const BigInt& first, const BigInt& second){
-  if(first.ifNegative() && (!second.ifNegative()) && first.size() >= second.size() && first.back() > second.back()){
-    BigInt add1 = first;
-    add1.setNegative(false);
-    BigInt add2 = add1 - second;
-    add2.setNegative(true);
-    return add2;
+  BigInt add_first = first;
+  BigInt add_second = second;
+  add_first.setNegative(false);
+  add_second.setNegative(false);
+  if(first.ifNegative() && (!second.ifNegative()) && add_first > add_second){
+    BigInt addition = add_first - add_second;
+    addition.setNegative(true);
+    return addition;
   }
-  else if(first.ifNegative() && (!second.ifNegative()) && first.size() <= second.size() && first.back() < second.back()){
-    BigInt add = first;
-    add.setNegative(false);
-    return second - add;
-  }
+  else if(first.ifNegative() && (!second.ifNegative()) && add_first < add_second) return add_second - add_first;
   else if(first.ifNegative() && (!second.ifNegative())) return BigInt("0");
-  else if((!first.ifNegative()) && second.ifNegative() && first.size() >= second.size() && first.back() > second.back()){
-    BigInt add = second;
-    add.setNegative(false);
-    return first - add;
-  }
-  else if((!first.ifNegative()) && second.ifNegative() && first.size() <= second.size()  && first.back() < second.back()){
-    BigInt add1 = second;
-    add1.setNegative(false);
-    BigInt add2 = add1 - first;
-    add2.setNegative(true);
-    return add2;
+  else if((!first.ifNegative()) && second.ifNegative() && add_first > add_second) return add_first - add_second;
+  else if((!first.ifNegative()) && second.ifNegative() && add_first < add_second){
+    BigInt addition = add_second - add_first;
+    addition.setNegative(true);
+    return addition;
   }
   else if((!first.ifNegative()) && second.ifNegative()) return BigInt("0");
   else if(first.ifNegative() && second.ifNegative()){
-    BigInt add1 = first;
-    BigInt add2 = second;
-    add1.setNegative(false);
-    add2.setNegative(false);
-    BigInt add3 = add1 + add2;
-    add3.setNegative(true);
-    return add3;
+    BigInt addition = add_first + add_second;
+    addition.setNegative(true);
+    return addition;
   }
-  BigInt addition = first;
-  for(unsigned long int i=0; i<second.size(); i++){
+  BigInt addition = add_first;
+  for(unsigned long int i=0; i<add_second.size(); i++){
     if(i > addition.size()-1){
       addition.push_back(0);
     }
-    addition.setDigit(i, addition.getDigit(i) + second.getDigit(i));
+    addition.setDigit(i, addition.getDigit(i) + add_second.getDigit(i));
     for(unsigned long int j=i; j<addition.size(); j++){
       while(addition.getDigit(j) > (WORD_SIZE - 1)){
         addition.setDigit(j, addition.getDigit(j) - WORD_SIZE);
@@ -247,31 +235,28 @@ BigInt operator +(const BigInt& first, const BigInt& second){
 };
 
 BigInt operator -(const BigInt& first, const BigInt& second){
-  if(first.ifNegative() && (!second.ifNegative()) && first.size() >= second.size() && first.back() > second.back()){
-    BigInt sub1 = first;
-    sub1.setNegative(false);
-    BigInt sub2 = sub1 - second;
-    sub2.setNegative(true);
-    return sub2;
+  BigInt sub_first = first;
+  BigInt sub_second = second;
+  sub_first.setNegative(false);
+  sub_second.setNegative(false);
+  if(first.ifNegative() && (!second.ifNegative()) && sub_first > sub_second){
+    BigInt subtract = sub_first - sub_second;
+    subtract.setNegative(true);
+    return subtract;
   }
-  else if(first.ifNegative() && (!second.ifNegative()) && first.size() <= second.size() && first.back() < second.back()){
-    BigInt sub = first;
-    sub.setNegative(false);
-    return second - sub;
+  else if(first.ifNegative() && (!second.ifNegative()) && sub_first < sub_second){
+    return sub_second - sub_first;
   }
   else if(first.ifNegative() && (!second.ifNegative())) return BigInt("0");
   else if((!first.ifNegative()) && second.ifNegative()){
-    BigInt sub = second;
-    sub.setNegative(false);
-    return first + sub;
+    return sub_first + sub_second;
   }
   else if(first.ifNegative() && second.ifNegative()){
-    BigInt sub = second;
-    return sub - first;
+    return sub_second - first;
   }
-  BigInt subtract = first;
-  for(unsigned long int i=0; i<second.size(); i++){
-    subtract.setDigit(i, subtract.getDigit(i)-second.getDigit(i));
+  BigInt subtract = sub_first;
+  for(unsigned long int i=0; i<sub_second.size(); i++){
+    subtract.setDigit(i, subtract.getDigit(i) - sub_second.getDigit(i));
     for(unsigned long int j=i; j<subtract.size()-1; j++){
       while(subtract.getDigit(j) < 0){
         subtract.setDigit(j, subtract.getDigit(j) + WORD_SIZE);
