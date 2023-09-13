@@ -343,13 +343,17 @@ BigInt operator /(const BigInt& first, const BigInt& second){
   else if(first.back() == 0) return BigInt("0");
   else{
     BigInt f = first;
+    f.setNegative(false);
+    BigInt s = second;
+    s.setNegative(false);
     BigInt zero = BigInt("0");
     BigInt one = BigInt("1");
     BigInt counter = BigInt("0");
     while(f > zero){
-      f = f - second;
+      f = f - s;
       counter = counter + one;
     }
+    if(first.ifNegative() || second.ifNegative()) counter = counter * BigInt("-1");
     return counter;
   }
 };
@@ -360,9 +364,13 @@ BigInt operator %(const BigInt& first, const BigInt& second){
   else if(second.size() == 1 && second.getDigit(0) == 1) return BigInt("0");
   else{
     BigInt f = first;
+    f.setNegative(false);
+    BigInt s = second;
+    s.setNegative(false);
     BigInt zero = BigInt("0");
-    while(f > zero) f = f - second;
-    if(f < zero) f = f + second;
+    while(f > zero) f = f - s;
+    if(f < zero) f = f + s;
+    if(first.ifNegative()) f = f * BigInt("-1");
     return f;
   }
 };
