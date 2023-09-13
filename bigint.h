@@ -32,12 +32,13 @@ class BigInt{
     long int back() const;
     //Operators
     BigInt operator =(const BigInt& a);
-    BigInt operator +(const BigInt& first, const BigInt& second);
-    BigInt operator -(const BigInt& first, const BigInt& second);
-    BigInt operator *(const BigInt& first, const BigInt& second);
-    double operator /(const BigInt& first, const BigInt& second);
-    double operator %(const BigInt& first, const BigInt& second);
 };
+
+BigInt operator +(const BigInt& first, const BigInt& second);
+BigInt operator -(const BigInt& first, const BigInt& second);
+BigInt operator *(const BigInt& first, const BigInt& second);
+BigInt operator /(const BigInt& first, const BigInt& second);
+BigInt operator %(const BigInt& first, const BigInt& second);
 
 //Constructors
 BigInt::BigInt(){
@@ -50,11 +51,11 @@ BigInt::BigInt(const string& strnum){
   string num = "";
   if(strnum.substr(0,1).compare("-") == 0){
     this->is_negative = true;
-    strnum.copy(num,strnum.length()-1,1);
+    num = strnum.substr(1,strnum.length()-1);
   }
   else {
     this->is_negative = false;
-    strnum.copy(num,strnum.length(),0);
+    num = strnum;
   }
   if(num.length() > WORD_LEN){
     for(long int i=num.length()-WORD_LEN; i>0; i-=WORD_LEN){
@@ -179,10 +180,10 @@ BigInt BigInt::operator =(const BigInt& a){
   return *this;
 };
 
-BigInt BigInt::operator +(const BigInt& first, const BigInt& second){
+BigInt operator +(const BigInt& first, const BigInt& second){
   if(first.ifNegative() && !second.ifNegative() && first > second){
     BigInt add1 = first;
-    first.setNegative(false);
+    add1.setNegative(false);
     BigInt add2 = add1 - second;
     add2.setNegative(true);
     return add2;
@@ -239,7 +240,7 @@ BigInt BigInt::operator +(const BigInt& first, const BigInt& second){
   return addition;
 };
 
-BigInt BigInt::operator -(const BigInt& first, const BigInt& second){
+BigInt operator -(const BigInt& first, const BigInt& second){
   if(first.ifNegative() && !second.ifNegative() && first > second){
     BigInt sub1 = first;
     sub1.setNegative(false);
@@ -259,7 +260,7 @@ BigInt BigInt::operator -(const BigInt& first, const BigInt& second){
     return first + sub;
   }
   else if(first.ifNegative() && second.ifNegative()){
-    BigInt sub = a;
+    BigInt sub = second;
     return sub - first;
   }
   BigInt subtract = first;
@@ -283,7 +284,7 @@ BigInt BigInt::operator -(const BigInt& first, const BigInt& second){
 
 // Use long multiplcation
 //https://en.wikipedia.org/wiki/Multiplication_algorithm
-BigInt BigInt::operator *(const BigInt& first, const BigInt& second){
+BigInt operator *(const BigInt& first, const BigInt& second){
   if(second.back() == 0) return BigInt("0");
   else if(first.back() == 0) return BigInt("0");
   else if(second.size() == 1 && second.getDigit(0) == 1 && !second.ifNegative()) return first;
@@ -337,105 +338,32 @@ BigInt BigInt::operator *(const BigInt& first, const BigInt& second){
   return product;
 };
 
-double BigInt::operator /(const BigInt& first, const BigInt& second){
-  BigInt division = 0.0;
-  if(second.back() == 0) return division;
-  else if(first.back() == 0) return division;
-  else if(second.size() == 1){
-    if(second.getDigit(0) == 1 && !second.ifNegative()) return first;
-    else if(second.getDigit(0) == 1 && second.ifNegative()){
-      BigInt div = first;
-      div.setNegative(!div.ifNegative());
-      return div;
-    }
-  }
-  else if(first.size() == 1 && second.size() == 1) return first.back() / second.back();
+BigInt operator /(const BigInt& first, const BigInt& second){
+  if(second.back() == 0) return BigInt("0");
+  else if(first.back() == 0) return BigInt("0");
   else{
     BigInt f = first;
-    double first_to_double = f.pop_back()
-    unsigned long int i = first.size();
-    if(i > 33) return 0.0;
-    while(i > 0){
-      first_to_double *= WORD_SIZE;
-      i--;
+    BigInt zero = BigInt("0");
+    BigInt one = BigInt("1");
+    BigInt counter = BigInt("0");
+    while(f > zero){
+      f = f - second;
+      counter = counter + one;
     }
-    if(f.size() > 0){
-      double sec_part = f.pop_back();
-      i = first.size();
-      while(i > 0){
-        sec_part *= WORD_SIZE;
-        i--;
-      }
-      first_to_double += sec_part;
-    }
-    BigInt s = second;
-    double second_to_double = s.pop_back();
-    i = second.size();
-    if(i > 33) return 0.0;
-    while(i > 0){
-      second_to_double *= WORD_SIZE;
-      i--;
-    }
-    if(s.size() > 0){
-      double sec_part = s.pop_back();
-      i = second.size();
-      while(i > 0){
-        sec_part *= WORD_SIZE;
-        i--;
-      }
-      second_to_double += sec_part;
-    }
-    if(f.ifNegative()) first_to_double *= -1;
-    if(s.ifNegative()) second_to_double *= -1;
-    return first_to_double / second_to_double;
+    return counter;
   }
 };
 
-// BigInt second must be smaller
-double BigInt::operator %(const BigInt& first, const BigInt& second){
-  BigInt modulo = 0.0;
-  if(second.back() == 0) return modulo;
-  else if(first.back() == 0) return modulo;
-  else if(second.size() == 1 && second.getDigit(0) == 1) return modulo;
-  else if(first.size() == 1 && second.size() == 1) return first.back() / second.back();
+BigInt operator %(const BigInt& first, const BigInt& second){
+  if(second.back() == 0) return BigInt("0");
+  else if(first.back() == 0) return BigInt("0");
+  else if(second.size() == 1 && second.getDigit(0) == 1) return BigInt("0");
   else{
     BigInt f = first;
-    double first_to_double = f.pop_back();
-    unsigned long int i = first.size();
-    if(i > 33) return 0.0;
-    while(i > 0){
-      first_to_double *= WORD_SIZE;
-      i--;
-    }
-    if(f.size() > 0){
-      double sec_part = f.pop_back();
-      i = first.size();
-      while(i > 0){
-        sec_part *= WORD_SIZE;
-        i--;
-      }
-      first_to_double += sec_part;
-    }
-    BigInt s = second;
-    double second_to_double = s.pop_back();
-    i = second.size();
-    if(i > 33) return 0.0;
-    while(i > 0){
-      second_to_double *= WORD_SIZE;
-      i--;
-    }
-    if(s.size() > 0){
-      double sec_part = s.pop_back();
-      i = second.size();
-      while(i > 0){
-        sec_part *= WORD_SIZE;
-        i--;
-      }
-      second_to_double += sec_part;
-    }
-    if(f.ifNegative()) first_to_double *= -1;
-    if(s.ifNegative()) second_to_double *= -1;
-    return first_to_double % second_to_double;
+    BigInt zero = BigInt("0");
+    while(f > zero) f = f - second;
+    if(f < zero) f = f + second;
+    return f;
   }
 };
 
