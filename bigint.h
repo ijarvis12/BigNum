@@ -60,18 +60,18 @@ BigInt::BigInt(const string& strnum){
   }
   if(num.length() > WORD_LEN){
     for(long int i=num.length()-WORD_LEN; i>0; i-=WORD_LEN){
-      this->push_back(stoi(num.substr(i,WORD_LEN)));
+      this->push_back(stoul(num.substr(i,WORD_LEN)));
     }
     char mod = (num.length() % WORD_LEN);
     if(mod != 0){
-      this->push_back(stoi(num.substr(0,mod)));
+      this->push_back(stoul(num.substr(0,mod)));
     }
     else{
-      this->push_back(stoi(num.substr(0,WORD_LEN)));
+      this->push_back(stoul(num.substr(0,WORD_LEN)));
     }
   }
   else{
-    this->push_back(stoi(num));
+    this->push_back(stoul(num));
   }
 };
 
@@ -159,7 +159,7 @@ ostream& operator <<(ostream& os, const BigInt& a){
 };
 
 bool operator <(const BigInt& first, const BigInt& second){
-  if( !first.ifNegative() && !second.ifNegative() ){
+  if( (!first.ifNegative()) && (!second.ifNegative()) ){
     if(first.size() > second.size()) return false;
     else if(first.size() == second.size() && first.back() >= second.back()) return false;
     else return true;
@@ -169,7 +169,7 @@ bool operator <(const BigInt& first, const BigInt& second){
     else if(first.size() == second.size() && first.back() <= second.back()) return false;
     else return true;
   }
-  else if( !first.ifNegative() && second.ifNegative() ) return false;
+  else if( (!first.ifNegative()) && second.ifNegative() ) return false;
   else return true;
 }
 
@@ -187,32 +187,32 @@ BigInt BigInt::operator =(const BigInt& a){
 };
 
 BigInt operator +(const BigInt& first, const BigInt& second){
-  if(first.ifNegative() && !second.ifNegative() && first.size() >= second.size() && first.back() > second.back()){
+  if(first.ifNegative() && (!second.ifNegative()) && first.size() >= second.size() && first.back() > second.back()){
     BigInt add1 = first;
     add1.setNegative(false);
     BigInt add2 = add1 - second;
     add2.setNegative(true);
     return add2;
   }
-  else if(first.ifNegative() && !second.ifNegative() && first.size() <= second.size() && first.back() < second.back()){
+  else if(first.ifNegative() && (!second.ifNegative()) && first.size() <= second.size() && first.back() < second.back()){
     BigInt add = first;
     add.setNegative(false);
     return second - add;
   }
-  else if(first.ifNegative() && !second.ifNegative()) return BigInt("0");
-  else if(!first.ifNegative() && second.ifNegative() && first.size() >= second.size() && first.back() > second.back()){
+  else if(first.ifNegative() && (!second.ifNegative())) return BigInt("0");
+  else if((!first.ifNegative()) && second.ifNegative() && first.size() >= second.size() && first.back() > second.back()){
     BigInt add = second;
     add.setNegative(false);
     return first - add;
   }
-  else if(!first.ifNegative() && second.ifNegative() && first.size() <= second.size()  && first.back() < second.back()){
+  else if((!first.ifNegative()) && second.ifNegative() && first.size() <= second.size()  && first.back() < second.back()){
     BigInt add1 = second;
     add1.setNegative(false);
     BigInt add2 = add1 - first;
     add2.setNegative(true);
     return add2;
   }
-  else if(!first.ifNegative() && second.ifNegative()) return BigInt("0");
+  else if((!first.ifNegative()) && second.ifNegative()) return BigInt("0");
   else if(first.ifNegative() && second.ifNegative()){
     BigInt add1 = first;
     BigInt add2 = second;
@@ -247,20 +247,20 @@ BigInt operator +(const BigInt& first, const BigInt& second){
 };
 
 BigInt operator -(const BigInt& first, const BigInt& second){
-  if(first.ifNegative() && !second.ifNegative() && first.size() >= second.size() && first.back() > second.back()){
+  if(first.ifNegative() && (!second.ifNegative()) && first.size() >= second.size() && first.back() > second.back()){
     BigInt sub1 = first;
     sub1.setNegative(false);
     BigInt sub2 = sub1 - second;
     sub2.setNegative(true);
     return sub2;
   }
-  else if(first.ifNegative() && !second.ifNegative() && first.size() <= second.size() && first.back() < second.back()){
+  else if(first.ifNegative() && (!second.ifNegative()) && first.size() <= second.size() && first.back() < second.back()){
     BigInt sub = first;
     sub.setNegative(false);
     return second - sub;
   }
-  else if(first.ifNegative() && !second.ifNegative()) return BigInt("0");
-  else if(!first.ifNegative() && second.ifNegative()){
+  else if(first.ifNegative() && (!second.ifNegative())) return BigInt("0");
+  else if((!first.ifNegative()) && second.ifNegative()){
     BigInt sub = second;
     sub.setNegative(false);
     return first + sub;
@@ -293,13 +293,13 @@ BigInt operator -(const BigInt& first, const BigInt& second){
 BigInt operator *(const BigInt& first, const BigInt& second){
   if(second.back() == 0) return BigInt("0");
   else if(first.back() == 0) return BigInt("0");
-  else if(second.size() == 1 && second.getDigit(0) == 1 && !second.ifNegative()) return first;
+  else if(second.size() == 1 && second.getDigit(0) == 1 && (!second.ifNegative())) return first;
   else if(second.size() == 1 && second.getDigit(0) == 1 && second.ifNegative()){
     BigInt prod = first;
     prod.setNegative(true);
     return prod;
   }
-  else if(first.size() == 1 && first.getDigit(0) == 1 && !first.ifNegative()) return second;
+  else if(first.size() == 1 && first.getDigit(0) == 1 && (!first.ifNegative())) return second;
   else if(first.size() == 1 && first.getDigit(0) == 1 && first.ifNegative()){
     BigInt prod = second;
     prod.setNegative(true);
@@ -312,14 +312,14 @@ BigInt operator *(const BigInt& first, const BigInt& second){
     prod2.setNegative(false);
     return prod1 * prod2;
   }
-  else if(first.ifNegative() && !second.ifNegative()){
+  else if(first.ifNegative() && (!second.ifNegative())){
     BigInt prod1 = first;
     prod1.setNegative(false);
     BigInt prod2 = prod1 * second;
     prod2.setNegative(true);
     return prod2;
   }
-  else if(!first.ifNegative() && second.ifNegative()){
+  else if((!first.ifNegative()) && second.ifNegative()){
     BigInt prod1 = second;
     prod1.setNegative(false);
     BigInt prod2 = first * prod1;
