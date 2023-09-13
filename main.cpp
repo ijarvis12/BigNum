@@ -25,10 +25,10 @@ int main(){
   BigInt t3 = BigInt("9999999999") * BigInt("333");
   cout << t3 << endl;
 
-  BigInt t4 = BigInt("9999999999") / BigInt("3333333");
+  BigInt t4 = BigInt("9999999999") / BigInt("-3333333");
   cout << t4 << endl;
 
-  BigInt t5 = BigInt("9999999999999999") % BigInt("3333333333");
+  BigInt t5 = BigInt("9999999999999999") % BigInt("-3333333333");
   cout << t5 << endl;
 
   BigInt t6 = pow(BigInt("2"),36);
