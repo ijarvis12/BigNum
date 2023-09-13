@@ -254,6 +254,11 @@ BigInt operator -(const BigInt& first, const BigInt& second){
   else if(first.ifNegative() && second.ifNegative()){
     return sub_second - first;
   }
+  else if((!first.ifNegative()) && (!second.ifNegative()) && sub_first < sub_second){
+    BigInt subtract = sub_second - sub_first;
+    subtract.setNegative(true);
+    return subtract;
+  }
   BigInt subtract = sub_first;
   for(unsigned long int i=0; i<sub_second.size(); i++){
     subtract.setDigit(i, subtract.getDigit(i) - sub_second.getDigit(i));
@@ -343,27 +348,27 @@ BigInt operator /(const BigInt& first, const BigInt& second){
     BigInt ten = BigInt("10");
     BigInt i = one;
     BigInt si = s*ten;
-    while(si > s){
+    while(ten < i){
       si = s;
       i = one;
       while(f > si*ten){
         si = si * ten;
         i = i * ten;
       }
-      while(f > zero){
+      while(!f.ifNegative()){
         f = f - si;
         counter = counter + i;
       }
-      if(f < zero){
+      if(f.ifNegative()){
         f = f + si;
         counter = counter - i;
       }
     }
-    while(f > zero){
+    while(!f.ifNegative()){
       f = f - s;
       counter = counter + one;
     }
-    if(f < zero){
+    if(f.ifNegative()){
       f = f + s;
       counter = counter - one;
     }
