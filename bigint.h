@@ -347,6 +347,7 @@ BigInt operator /(const BigInt& first, const BigInt& second){
     BigInt ten = BigInt("10");
     BigInt i = ten;
     BigInt si = s;
+    BigInt limit = si - one;
     while(one < i){
       si = s;
       i = one;
@@ -354,18 +355,11 @@ BigInt operator /(const BigInt& first, const BigInt& second){
         si = si * ten;
         i = i * ten;
       }
-      while(f > si){
+      limit = si - one;
+      while(f > limit){
         f = f - si;
         counter = counter + i;
       }
-    }
-    while(!f.ifNegative()){
-      f = f - s;
-      counter = counter + one;
-    }
-    if(f.ifNegative()){
-      f = f + s;
-      counter = counter - one;
     }
     if(first.ifNegative() && second.ifNegative()) return counter;
     else if(first.ifNegative() || second.ifNegative()) counter = counter * BigInt("-1");
@@ -374,19 +368,20 @@ BigInt operator /(const BigInt& first, const BigInt& second){
 };
 
 BigInt operator %(const BigInt& first, const BigInt& second){
-  if(second.back() == 0) return BigInt("0");
-  else if(first.back() == 0) return BigInt("0");
-  else if(second.size() == 1 && second.getDigit(0) == 1) return BigInt("0");
+  BigInt zero = BigInt("0");
+  if(second.back() == 0) return zero;
+  else if(first.back() == 0) return zero;
+  else if(second.size() == 1 && second.getDigit(0) == 1) return zero;
   else{
     BigInt f = first;
     f.setNegative(false);
     BigInt s = second;
     s.setNegative(false);
-    BigInt zero = BigInt("0");
     BigInt one = BigInt("1");
     BigInt ten = BigInt("10");
     BigInt i = ten;
     BigInt si = s;
+    BigInt limit = si - one;
     while(one < i){
       si = s;
       i = one;
@@ -394,10 +389,8 @@ BigInt operator %(const BigInt& first, const BigInt& second){
         si = si * ten;
         i = i * ten;
       }
-      while(f > si) f = f - si;
+      while(f > limit) f = f - si;
     }
-    while(!f.ifNegative()) f = f - s;
-    if(f.ifNegative()) f = f + s;
     if(first.ifNegative()) f = f * BigInt("-1");
     return f;
   }
