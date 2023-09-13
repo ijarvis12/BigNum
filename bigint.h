@@ -244,16 +244,15 @@ BigInt operator -(const BigInt& first, const BigInt& second){
     subtract.setNegative(true);
     return subtract;
   }
-  else if(first.ifNegative() && (!second.ifNegative()) && sub_first < sub_second){
-    return sub_second - sub_first;
-  }
+  else if(first.ifNegative() && (!second.ifNegative()) && sub_first < sub_second) return sub_second - sub_first;
   else if(first.ifNegative() && (!second.ifNegative())) return BigInt("0");
-  else if((!first.ifNegative()) && second.ifNegative()){
-    return sub_first + sub_second;
+  else if((!first.ifNegative()) && second.ifNegative()) return sub_first + sub_second;
+  else if(first.ifNegative() && second.ifNegative() && sub_first > sub_second){
+    BigInt subtract = sub_first - sub_second;
+    subtract.setNegative(true);
+    return subtract;
   }
-  else if(first.ifNegative() && second.ifNegative()){
-    return sub_second - first;
-  }
+  else if(first.ifNegative() && second.ifNegative() && sub_first < sub_second) return sub_second - sub_first;
   else if((!first.ifNegative()) && (!second.ifNegative()) && sub_first < sub_second){
     BigInt subtract = sub_second - sub_first;
     subtract.setNegative(true);
@@ -346,22 +345,18 @@ BigInt operator /(const BigInt& first, const BigInt& second){
     BigInt one = BigInt("1");
     BigInt counter = zero;
     BigInt ten = BigInt("10");
-    BigInt i = one;
-    BigInt si = s*ten;
-    while(ten < i){
+    BigInt i = ten;
+    BigInt si = s;
+    while(one < i){
       si = s;
       i = one;
       while(f > si*ten){
         si = si * ten;
         i = i * ten;
       }
-      while(!f.ifNegative()){
+      while(f > si){
         f = f - si;
         counter = counter + i;
-      }
-      if(f.ifNegative()){
-        f = f + si;
-        counter = counter - i;
       }
     }
     while(!f.ifNegative()){
@@ -388,8 +383,21 @@ BigInt operator %(const BigInt& first, const BigInt& second){
     BigInt s = second;
     s.setNegative(false);
     BigInt zero = BigInt("0");
-    while(f > zero) f = f - s;
-    if(f < zero) f = f + s;
+    BigInt one = BigInt("1");
+    BigInt ten = BigInt("10");
+    BigInt i = ten;
+    BigInt si = s;
+    while(one < i){
+      si = s;
+      i = one;
+      while(f > si*ten){
+        si = si * ten;
+        i = i * ten;
+      }
+      while(f > si) f = f - si;
+    }
+    while(!f.ifNegative()) f = f - s;
+    if(f.ifNegative()) f = f + s;
     if(first.ifNegative()) f = f * BigInt("-1");
     return f;
   }
