@@ -33,12 +33,13 @@ class BigInt{
     //Operators
     BigInt operator =(const BigInt& a);
 };
-
+//More operators
 BigInt operator +(const BigInt& first, const BigInt& second);
 BigInt operator -(const BigInt& first, const BigInt& second);
 BigInt operator *(const BigInt& first, const BigInt& second);
 BigInt operator /(const BigInt& first, const BigInt& second);
 BigInt operator %(const BigInt& first, const BigInt& second);
+BigInt pow(const BigInt& a, const unsigned long int n);
 
 //Constructors
 BigInt::BigInt(){
@@ -158,12 +159,17 @@ ostream& operator <<(ostream& os, const BigInt& a){
 };
 
 bool operator <(const BigInt& first, const BigInt& second){
-  if( (!first.ifNegative() && !second.ifNegative()) || (first.ifNegative() && second.ifNegative()) ){
-    if(second.size() < first.size()) return false;
-    else if(second.size() == first.size() && second.back() <= first.back()) return false;
+  if( !first.ifNegative() && !second.ifNegative() ){
+    if(first.size() > second.size()) return false;
+    else if(first.size() == second.size() && first.back() >= second.back()) return false;
     else return true;
   }
-  else if(!first.ifNegative() && second.ifNegative()) return false;
+  else if( first.ifNegative() && second.ifNegative() ){
+    if(first.size() < second.size()) return false;
+    else if(first.size() == second.size() && first.back() <= second.back()) return false;
+    else return true;
+  }
+  else if( !first.ifNegative() && second.ifNegative() ) return false;
   else return true;
 }
 
@@ -181,25 +187,25 @@ BigInt BigInt::operator =(const BigInt& a){
 };
 
 BigInt operator +(const BigInt& first, const BigInt& second){
-  if(first.ifNegative() && !second.ifNegative() && first > second){
+  if(first.ifNegative() && !second.ifNegative() && first.size() >= second.size() && first.back() > second.back()){
     BigInt add1 = first;
     add1.setNegative(false);
     BigInt add2 = add1 - second;
     add2.setNegative(true);
     return add2;
   }
-  else if(first.ifNegative() && !second.ifNegative() && first < second){
+  else if(first.ifNegative() && !second.ifNegative() && first.size() <= second.size() && first.back() < second.back()){
     BigInt add = first;
     add.setNegative(false);
     return second - add;
   }
   else if(first.ifNegative() && !second.ifNegative()) return BigInt("0");
-  else if(!first.ifNegative() && second.ifNegative() && first > second){
+  else if(!first.ifNegative() && second.ifNegative() && first.size() >= second.size() && first.back() > second.back()){
     BigInt add = second;
     add.setNegative(false);
     return first - add;
   }
-  else if(!first.ifNegative() && second.ifNegative() && first < second){
+  else if(!first.ifNegative() && second.ifNegative() && first.size() <= second.size()  && first.back() < second.back()){
     BigInt add1 = second;
     add1.setNegative(false);
     BigInt add2 = add1 - first;
@@ -241,14 +247,14 @@ BigInt operator +(const BigInt& first, const BigInt& second){
 };
 
 BigInt operator -(const BigInt& first, const BigInt& second){
-  if(first.ifNegative() && !second.ifNegative() && first > second){
+  if(first.ifNegative() && !second.ifNegative() && first.size() >= second.size() && first.back() > second.back()){
     BigInt sub1 = first;
     sub1.setNegative(false);
     BigInt sub2 = sub1 - second;
     sub2.setNegative(true);
     return sub2;
   }
-  else if(first.ifNegative() && !second.ifNegative() && first < second){
+  else if(first.ifNegative() && !second.ifNegative() && first.size() <= second.size() && first.back() < second.back()){
     BigInt sub = first;
     sub.setNegative(false);
     return second - sub;
@@ -348,12 +354,36 @@ BigInt operator /(const BigInt& first, const BigInt& second){
     s.setNegative(false);
     BigInt zero = BigInt("0");
     BigInt one = BigInt("1");
-    BigInt counter = BigInt("0");
+    BigInt counter = zero;
+    BigInt ten = BigInt("10");
+    BigInt i = one;
+    BigInt si = s*ten;
+    while(si > s){
+      si = s;
+      i = one;
+      while(f > si*ten){
+        si = si * ten;
+        i = i * ten;
+      }
+      while(f > zero){
+        f = f - si;
+        counter = counter + i;
+      }
+      if(f < zero){
+        f = f + si;
+        counter = counter - i;
+      }
+    }
     while(f > zero){
       f = f - s;
       counter = counter + one;
     }
-    if(first.ifNegative() || second.ifNegative()) counter = counter * BigInt("-1");
+    if(f < zero){
+      f = f + s;
+      counter = counter - one;
+    }
+    if(first.ifNegative() && second.ifNegative()) return counter;
+    else if(first.ifNegative() || second.ifNegative()) counter = counter * BigInt("-1");
     return counter;
   }
 };
