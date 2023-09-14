@@ -111,7 +111,9 @@ unsigned long int BigInt::size() const {
 };
 
 void BigInt::resize(const unsigned long int x){
+  unsigned long int before_x = this->digits.size();
   this->digits.resize(x);
+  if(before_x < x) for(unsigned long int i=0; i<this->digits.size(); i++) this->digits[i] = 0;
 };
 
 void BigInt::push_back(const long int x){
@@ -316,7 +318,7 @@ BigInt operator *(const BigInt& first, const BigInt& second){
     prod2.setNegative(true);
     return prod2;
   }
-  BigInt product = BigInt();
+  BigInt product = BigInt("0");
   product.resize(first.size()+second.size());
   unsigned long int carry;
   for(unsigned long int b_i=0; b_i<second.size(); b_i++){
