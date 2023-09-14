@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <cmath>
 using namespace std;
 
 const unsigned long int WORD_SIZE = 1000000000;
