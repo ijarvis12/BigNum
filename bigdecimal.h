@@ -9,8 +9,8 @@ class BigDecimal{
     BigInt value;
     BigInt scale;
   public:
-    BigDecimal()
-    BigDecimal(string num);
+    BigDecimal();
+    BigDecimal(const string& num);
     BigDecimal(double num);
     BigDecimal(BigInt v, BigInt s);
     ~BigDecimal();
@@ -22,8 +22,11 @@ class BigDecimal{
     //Setters
     void setValue();
     void setScale();
+    //Operators
+    BigDecimal operator =(const BigDecimal& a);
 };
 
+//More operators
 BigDecimal operator +(const BigDecimal& first, const BigDecimal& second);
 BigDecimal operator -(const BigDecimal& first, const BigDecimal& second);
 BigDecimal operator *(const BigDecimal& first, const BigDecimal& second);
@@ -37,17 +40,18 @@ BigDecimal::BigDecimal(){
   this->scale = BigInt("0");
 };
 
-BigDecimal::BigDecimal(string num){
-  unsigned long int dec_pos = num.find('.', 1);
-  if(dec_pos > 1 && dec_pos < num.length()){
-    long int s = num.length() - dec_pos - 1;
-    string v = num.replace(dec_pos, 1, '');
-    this->value = BigInt(v);
+BigDecimal::BigDecimal(const string& num){
+  string strnum = num;
+  unsigned long int dec_pos = strnum.find('.', 1);
+  if(dec_pos > 0 && dec_pos < strnum.length()){
+    long int s = strnum.length() - dec_pos - 1;
+    strnum = strnum.substr(0,dec_pos) + strnum.substr(dec_pos,strnum.length());
+    this->value = BigInt(strnum);
     this->scale = BigInt(s);
   }
-  else if(dec_pos == 0) *this = BigDecimal("0" + num);
+  else if(dec_pos == 0) *this = BigDecimal("0" + strnum);
   else{
-    this->value = BigInt(num);
+    this->value = BigInt(strnum);
     this->scale = BigInt("0");
   }
 };
@@ -78,25 +82,31 @@ void BigDecimal::trim(){
 };
 
 unsigned long int BigDecimal::precision(){
-  string v = to_string(this->value);
-  if(v.find('-', 0) == 0) v = v.replace(0, 1, '');
-  return v.length();
+  string val = "";
+  BigInt v = this->value;
+  while(v.size() > 0){
+    val += v.back();
+    v.pop_back();
+  }
+  return val.length();
 };
 
 //Getters
-BigInt BigInt::getValue(){
+BigInt BigDecimal::getValue(){
   return this->value;
 }
 
-BigInt BigInt::getScale(){
+BigInt BigDecimal::getScale(){
   return this->scale;
 }
 
 //Operators
-BigDecimal operator =(const BigDecimal& a){
-  this->value = a.getValue();
-  this->scale = a.getScale();
+BigDecimal BigDecimal::operator =(const BigDecimal& a){
+  BigDecimal bd = a;
+  this->value = bd.getValue();
+  this->scale = bd.getScale();
   this->trim();
+  return *this;
 };
 
 ostream& operator <<(ostream& os, const BigDecimal& a){
@@ -106,11 +116,12 @@ ostream& operator <<(ostream& os, const BigDecimal& a){
   BigInt zero = BigInt("0");
   BigInt one = BigInt("1");
   string val = "";
-  while(v.size() > 0){
-    val += to_string(v.pop_back());
-  }
-  if(v < zero){
+  if(v.ifNegative()){
     os << "-";
+  }
+  while(v.size() > 0){
+    val += to_string(v.back());
+    v.pop_back();
   }
   if(s > zero){
     os << "0.";
@@ -122,10 +133,10 @@ ostream& operator <<(ostream& os, const BigDecimal& a){
     os << val;
   }
   else if(s < zero){
-    s = s + BigInt(to_string(bd.precision())));
+    s = s + BigInt(to_string(bd.precision()));
     for(BigInt i=zero; i<s; i=i+one){
       os << val.front();
-      val.front() = '';
+      val = val.substr(1,val.length());
     }
     os << ".";
     os << val;
@@ -146,7 +157,7 @@ BigDecimal operator +(const BigDecimal& first, const BigDecimal& second){
   BigDecimal s_add = second;
   matchScales(f_add, s_add);
   BigInt add_value = f_add.getValue() + s_add.getValue();
-  BigDecimal addition = BigDecimal(add_value, first.getScale());
+  BigDecimal addition = BigDecimal(add_value, f_add.getScale());
   return addition;
 };
 
@@ -155,13 +166,15 @@ BigDecimal operator -(const BigDecimal& first, const BigDecimal& second){
   BigDecimal s_sub = second;
   matchScales(f_sub, s_sub);
   BigInt sub_value = f_sub.getValue() - s_sub.getValue();
-  BigDecimal subtraction = BigDecimal(sub_value, first.getScale());
+  BigDecimal subtraction = BigDecimal(sub_value, f_sub.getScale());
   return subtraction;
 
 };
 
 BigDecimal operator *(const BigDecimal& first, const BigDecimal& second){
-  return BigDecimal((first.getValue()*second.getValue()), (first.getScale()+second.getScale());
+  BigDecimal f = first;
+  BigDecimal s = second;
+  return BigDecimal((f.getValue()*s.getValue()), (f.getScale()+s.getScale()));
 };
 
 bool operator <(const BigDecimal& first, const BigDecimal& second){
@@ -182,24 +195,29 @@ BigDecimal operator /(const BigDecimal& first, const BigDecimal& second){
   unsigned long int max_prec = f_div.precision() + round(s_div.precision()*10/3);
   BigDecimal ten_pow = BigDecimal(pow(BigInt("10"), max_prec), BigInt("0"));
   if(f_div < s_div){
-    f_div2 = f_div * ten_pow;
+    BigDecimal f_div2 = f_div * ten_pow;
     BigInt div_v = f_div2.getValue() / s_div.getValue();
     BigInt div_s = s_div.getScale() - (ten_pow.getScale() / BigInt("2"));
     return BigDecimal(div_v, div_s);
+  }
   else if(f_div > s_div){
-    s_div2 = s_div * ten_pow;
+    BigDecimal s_div2 = s_div * ten_pow;
     BigInt div_v = f_div.getValue() / s_div2.getValue();
     BigInt div_s = f_div.getScale() - (ten_pow.getScale() / BigInt("2"));
     return BigDecimal(div_v, div_s);
   }
+  else return BigDecimal("1");
 };
 
 BigDecimal operator %(const BigDecimal& first, const BigDecimal& second){
   BigDecimal zero = BigDecimal();
-  if(first.getScale() > zero || first.getScale() < zero) return zero;
-  else if(second.getScale() > zero || second.getScale() < zero) return zero; 
-  BigInt mod_v = first.getValue() % second.getValue();
-  return BigDecimal(mod_v, zero);
+  BigInt zero_bint = BigInt("0");
+  BigDecimal f = first;
+  BigDecimal s = second;
+  if(f.getScale() > zero_bint || f.getScale() < zero_bint) return zero;
+  else if(s.getScale() > zero_bint || s.getScale() < zero_bint) return zero; 
+  BigInt mod_v = f.getValue() % s.getValue();
+  return BigDecimal(mod_v, zero_bint);
 };
 
 //n must be positive
@@ -228,20 +246,21 @@ BigDecimal pow(const BigDecimal& a, const BigInt& n){
   BigDecimal one = BigDecimal("1");
   if(n.size() == 1 && n.back() == 0) return one;
   BigDecimal x = a;
-  BigInt y = one;
+  BigDecimal y = one;
   BigInt z = n;
-  BigInt mod = BigInt("1");
-  BigInt two = BigInt("2");
-  while(z > one){
-    mod = z % two;
+  BigInt one_bint = BigInt("1");
+  BigInt mod = one_bint;
+  BigInt two_bint = BigInt("2");
+  while(z > one_bint){
+    mod = z % two_bint;
     if(mod.size() == 1 && mod.back() == 0){
       x = x * x;
-      z = z / two;
+      z = z / two_bint;
     }
     else{
       y = x * y;
       x = x * x;
-      z = (z - one) / two;
+      z = (z - one_bint) / two_bint;
     }
   }
   return x * y;
