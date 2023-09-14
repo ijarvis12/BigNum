@@ -69,7 +69,7 @@ int main(){
   BigDecimal t11 = BigDecimal("36") % BigDecimal("2");
   cout << t11 << endl;
 
-  BigDecimal t12 = pow(BigDecimal("0.1"), 36);
+  BigDecimal t12 = pow(BigDecimal("0.1"), 12);
   cout << t12 << endl;
 
   return 0;
