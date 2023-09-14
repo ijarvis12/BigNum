@@ -17,8 +17,8 @@ class BigDecimal{
     void trim();
     unsigned long int precision();
     //Getters
-    BigInt getValue();
-    BigInt getScale();
+    BigInt getValue() const;
+    BigInt getScale() const;
     //Setters
     void setValue();
     void setScale();
@@ -42,16 +42,28 @@ BigDecimal::BigDecimal(){
 
 BigDecimal::BigDecimal(const string& num){
   string strnum = num;
-  unsigned long int dec_pos = strnum.find('.', 1);
+  unsigned long int dec_pos = strnum.find('.', 0);
+  bool is_negative = false;
+  if(strnum.substr(0,1) == "-"){
+    is_negative = true;
+    strnum = strnum.substr(1,strnum.length());
+    dec_pos -= 1;
+  }
   if(dec_pos > 0 && dec_pos < strnum.length()){
     long int s = strnum.length() - dec_pos - 1;
-    strnum = strnum.substr(0,dec_pos) + strnum.substr(dec_pos,strnum.length());
+    strnum = strnum.substr(0,dec_pos-1) + strnum.substr(dec_pos+1,strnum.length());
+    while(strnum.substr(0,1) == "0") strnum = strnum.substr(1,strnum.length());
+    if(is_negative) strnum = "-" + strnum;
     this->value = BigInt(strnum);
     this->scale = BigInt(s);
   }
-  else if(dec_pos == 0) *this = BigDecimal("0" + strnum);
+  else if(dec_pos == 0){
+    if(is_negative) *this = BigDecimal("-0" + strnum);
+    else *this = BigDecimal("0" + strnum);
+  }
   else{
-    this->value = BigInt(strnum);
+    if(is_negative) this->value = BigInt("-" + strnum);
+    else this->value = BigInt(strnum);
     this->scale = BigInt("0");
   }
 };
@@ -85,28 +97,26 @@ unsigned long int BigDecimal::precision(){
   string val = "";
   BigInt v = this->value;
   while(v.size() > 0){
-    val += v.back();
+    val += to_string(v.back());
     v.pop_back();
   }
   return val.length();
 };
 
 //Getters
-BigInt BigDecimal::getValue(){
+BigInt BigDecimal::getValue() const {
   return this->value;
 }
 
-BigInt BigDecimal::getScale(){
+BigInt BigDecimal::getScale() const {
   return this->scale;
 }
 
 //Operators
 BigDecimal BigDecimal::operator =(const BigDecimal& a){
-  BigDecimal bd = a;
-  this->value = bd.getValue();
-  this->scale = bd.getScale();
-  this->trim();
-  return *this;
+  BigInt v = a.getValue();
+  BigInt s = a.getScale();
+  return BigDecimal(v, s);
 };
 
 ostream& operator <<(ostream& os, const BigDecimal& a){
@@ -123,23 +133,23 @@ ostream& operator <<(ostream& os, const BigDecimal& a){
     val += to_string(v.back());
     v.pop_back();
   }
-  if(s > zero){
+  BigInt prec = BigInt(to_string(bd.precision()));
+  if(s > prec){
     os << "0.";
-    s = s - BigInt(to_string(bd.precision()));
-    while(s > zero){
+    BigInt counter = s - prec;
+    while(counter > one){
       os << "0";
-      s = s - one;
+      counter = counter - one;
     }
     os << val;
   }
-  else if(s < zero){
-    s = s + BigInt(to_string(bd.precision()));
-    for(BigInt i=zero; i<s; i=i+one){
+  else if(s.back() > 0){
+    BigInt limit = prec - s;
+    for(BigInt i=zero; i<limit; i=i+one){
       os << val.front();
       val = val.substr(1,val.length());
     }
-    os << ".";
-    os << val;
+    os << "." << val;
   }
   else os << val;
   return os;
