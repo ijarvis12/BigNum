@@ -330,7 +330,7 @@ BigInt operator *(const BigInt& first, const BigInt& second){
     }
     product.setDigit(b_i+first.size(),carry);
   }
-  while(product.back() == 0){
+  while(product.back() == 0 && product.size() > 1){
     product.pop_back();
   }
   return product;
