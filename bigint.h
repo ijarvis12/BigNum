@@ -40,6 +40,7 @@ BigInt operator *(const BigInt& first, const BigInt& second);
 BigInt operator /(const BigInt& first, const BigInt& second);
 BigInt operator %(const BigInt& first, const BigInt& second);
 BigInt pow(const BigInt& a, const unsigned long int n);
+BigInt pow(const BigInt& a, const BigInt n);
 
 //Constructors
 BigInt::BigInt(){
@@ -414,6 +415,32 @@ BigInt pow(const BigInt& a, const unsigned long int n){
       y = x * y;
       x = x * x;
       z = (unsigned long int)((z - 1) / 2);
+    }
+  }
+  return x * y;
+};
+
+//Remember n must be positive
+BigInt pow(const BigInt& a, const BigInt n){
+  BigInt one = BigInt("1");
+  if(n.size() == 1 && n.back() == 0){
+    return one;
+  }
+  BigInt x = a;
+  BigInt y = one;
+  BigInt z = n;
+  BigInt mod = one;
+  BigInt two = BigInt("2");
+  while(z > one){
+    mod = z % two;
+    if(mod.size() == 1 && mod.back() == 0){
+      x = x * x;
+      z = z / two;
+    }
+    else{
+      y = x * y;
+      x = x * x;
+      z = (z - one) / two;
     }
   }
   return x * y;
