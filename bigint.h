@@ -73,6 +73,7 @@ BigInt::BigInt(const string& strnum){
   else{
     this->push_back(stoul(num));
   }
+  while(this->back() == 0 && this->size() > 1) this->pop_back(); //for BigDecimal initialization sanity check
 };
 
 BigInt::BigInt(const long int num){
