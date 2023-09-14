@@ -113,7 +113,7 @@ unsigned long int BigInt::size() const {
 void BigInt::resize(const unsigned long int x){
   unsigned long int before_x = this->digits.size();
   this->digits.resize(x);
-  if(before_x < x) for(unsigned long int i=0; i<this->digits.size(); i++) this->digits[i] = 0;
+  if(before_x < x) for(unsigned long int i=before_x; i<this->digits.size(); i++) this->digits[i] = 0;
 };
 
 void BigInt::push_back(const long int x){
