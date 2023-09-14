@@ -38,8 +38,8 @@ BigInt operator -(const BigInt& first, const BigInt& second);
 BigInt operator *(const BigInt& first, const BigInt& second);
 BigInt operator /(const BigInt& first, const BigInt& second);
 BigInt operator %(const BigInt& first, const BigInt& second);
-BigInt pow(const BigInt& a, const unsigned long int n);
-BigInt pow(const BigInt& a, const BigInt n);
+BigInt pow(const BigInt& a, const unsigned long int& n);
+BigInt pow(const BigInt& a, const BigInt& n);
 
 //Constructors
 BigInt::BigInt(){
@@ -398,7 +398,7 @@ BigInt operator %(const BigInt& first, const BigInt& second){
 };
 
 // Can only exponentiate postive n powers, but BigInt a can be negative
-BigInt pow(const BigInt& a, const unsigned long int n){
+BigInt pow(const BigInt& a, const unsigned long int& n){
   if(n == 0){
     return BigInt("1");
   }
@@ -420,7 +420,7 @@ BigInt pow(const BigInt& a, const unsigned long int n){
 };
 
 //Remember n must be positive
-BigInt pow(const BigInt& a, const BigInt n){
+BigInt pow(const BigInt& a, const BigInt& n){
   BigInt one = BigInt("1");
   if(n.size() == 1 && n.back() == 0){
     return one;
