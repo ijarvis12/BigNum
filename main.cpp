@@ -1,9 +1,11 @@
 #include <iostream>
-#include "bigint.h"
+#include "bigdecimal.h"
 using namespace std;
 
 int main(){
   //Initializer Tests
+  cout << "Initializer Tests for BigInt" << endl;
+
   BigInt i1 = BigInt();
   cout << i1 << endl;
 
@@ -13,9 +15,25 @@ int main(){
   BigInt i3 = BigInt(-1234567890);
   cout << i3 << endl;
 
+  cout << endl << "Initializer Tests for BigDecimal" << endl;
+
+  BigDecimal i4 = BigDecimal();
+  cout << i4 << endl;
+
+  BigDecimal i5 = BigDecimal("-0.00123456789");
+  cout << i5 << endl;
+
+  BigDecimal i6 = BigDecimal("-123456.789");
+  cout << i6 << endl;
+
+  BigDecimal i7 = BigDecimal("1234567890000");
+  cout << i7 << endl;
+
   cout << endl;
 
   //Operator Tests
+  cout << "Operator Tests for BigInt" << endl;
+
   BigInt t1 = BigInt("999999999") + BigInt("1");
   cout << t1 << endl;
 
