@@ -211,9 +211,8 @@ BigDecimal operator /(const BigDecimal& first, const BigDecimal& second){
     return BigDecimal(div_v, div_s);
   }
   else if(f_div > s_div){
-    BigDecimal s_div2 = s_div * ten_pow;
     BigInt div_v = f_div.getValue() / s_div2.getValue();
-    BigInt div_s = f_div.getScale() - (ten_pow.getScale() / BigInt("2"));
+    BigInt div_s = f_div.getScale();
     return BigDecimal(div_v, div_s);
   }
   else return BigDecimal("1");
