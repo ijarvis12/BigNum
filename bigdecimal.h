@@ -143,9 +143,15 @@ ostream& operator <<(ostream& os, const BigDecimal& a){
     }
     os << val;
   }
-  else if(s.back() > 0){
+  else if(s > zero){
     BigInt limit = prec - s;
-    for(BigInt i=zero; i<limit; i=i+one){
+    if(limit > zero){
+      for(BigInt i=zero; i<limit; i=i+one){
+        os << val.front();
+        val = val.substr(1,val.length());
+      }
+    }
+    else{
       os << val.front();
       val = val.substr(1,val.length());
     }
