@@ -177,7 +177,18 @@ bool operator <(const BigInt& first, const BigInt& second){
 }
 
 bool operator >(const BigInt& first, const BigInt& second){
-  return !(first < second);
+  if( (!first.ifNegative()) && (!second.ifNegative()) ){
+    if(first.size() < second.size()) return false;
+    else if(first.size() == second.size() && first.back() <= second.back()) return false;
+    else return true;
+  }
+  else if( first.ifNegative() && second.ifNegative() ){
+    if(first.size() > second.size()) return false;
+    else if(first.size() == second.size() && first.back() >= second.back()) return false;
+    else return true;
+  }
+  else if( (!first.ifNegative()) && second.ifNegative() ) return false;
+  else return true;
 }
 
 BigInt BigInt::operator =(const BigInt& a){
