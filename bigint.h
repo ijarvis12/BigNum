@@ -1,424 +1,263 @@
 #include <iostream>
 #include <string>
-#include <vector>
+#include <cmath>
+#include "bigint.h"
 using namespace std;
 
-const unsigned long int WORD_SIZE = 1000000000;
-const char WORD_LEN = 9;
-
-class BigInt{
+class BigDecimal{
   private:
-    bool is_negative; // true (1) = negative, false (0) = postitive
-    vector<long int> digits;
+    BigInt value;
+    BigInt scale;
   public:
-    //Constructors
-    BigInt();
-    BigInt(const string& num);
-    BigInt(const long int num);
-    //Deconstructor
-    ~BigInt();
-    //Setters
-    void setNegative(const bool b);
-    void setDigit(const unsigned long int digit, const long int x);
+    BigDecimal();
+    BigDecimal(const string& num);
+    BigDecimal(const double& num);
+    BigDecimal(const BigInt& v, const BigInt& s);
+    ~BigDecimal();
+    void trim();
+    unsigned long int precision();
     //Getters
-    bool ifNegative() const;
-    long int getDigit(const unsigned long int digit) const;
-    //Vector API
-    unsigned long int size() const;
-    void resize(const unsigned long int x);
-    void push_back(const long int x);
-    void pop_back();
-    long int back() const;
+    BigInt getValue() const;
+    BigInt getScale() const;
+    //Setters
+    void setValue(const BigInt& a);
+    void setScale(const BigInt& a);
     //Operators
-    BigInt operator =(const BigInt& a);
+    BigDecimal operator =(const BigDecimal& a);
 };
+
 //More operators
-BigInt operator +(const BigInt& first, const BigInt& second);
-BigInt operator -(const BigInt& first, const BigInt& second);
-BigInt operator *(const BigInt& first, const BigInt& second);
-BigInt operator /(const BigInt& first, const BigInt& second);
-BigInt operator %(const BigInt& first, const BigInt& second);
-BigInt pow(const BigInt& a, const unsigned long int& n);
-BigInt pow(const BigInt& a, const BigInt& n);
+BigDecimal operator +(const BigDecimal& first, const BigDecimal& second);
+BigDecimal operator -(const BigDecimal& first, const BigDecimal& second);
+BigDecimal operator *(const BigDecimal& first, const BigDecimal& second);
+BigDecimal operator /(const BigDecimal& first, const BigDecimal& second);
+BigDecimal operator %(const BigDecimal& first, const BigDecimal& second);
+BigDecimal pow(const BigDecimal& a, const unsigned long int n);
+BigDecimal pow(const BigDecimal& a, const BigInt& n);
 
-//Constructors
-BigInt::BigInt(){
-  this->is_negative = false;
-  this->resize(0);
+BigDecimal::BigDecimal(){
+  this->value = BigInt("0");
+  this->scale = BigInt("0");
 };
 
-BigInt::BigInt(const string& strnum){
-  this->resize(0);
-  string num = "";
-  if(strnum.substr(0,1).compare("-") == 0){
-    this->is_negative = true;
-    num = strnum.substr(1,strnum.length()-1); //yes it is just len - 1
+BigDecimal::BigDecimal(const string& num){
+  string strnum = num;
+  unsigned long int dec_pos = strnum.find('.', 0);
+  bool is_negative = false;
+  if(strnum.substr(0,1) == "-"){
+    is_negative = true;
+    strnum = strnum.substr(1,strnum.length());
+    dec_pos -= 1;
   }
-  else {
-    this->is_negative = false;
-    num = strnum;
+  if(dec_pos > 0 && dec_pos < strnum.length()){
+    long int s = strnum.length() - dec_pos - 1;
+    strnum = strnum.substr(0,dec_pos-1) + strnum.substr(dec_pos+1,strnum.length());
+    while(strnum.substr(0,1) == "0") strnum = strnum.substr(1,strnum.length());
+    if(is_negative) strnum = "-" + strnum;
+    this->value = BigInt(strnum);
+    this->scale = BigInt(s);
   }
-  if(num.length() > WORD_LEN){
-    for(long int i=num.length()-WORD_LEN; i>0; i-=WORD_LEN){
-      this->push_back(stoul(num.substr(i,WORD_LEN)));
-    }
-    char mod = (num.length() % WORD_LEN);
-    if(mod != 0){
-      this->push_back(stoul(num.substr(0,mod)));
-    }
-    else{
-      this->push_back(stoul(num.substr(0,WORD_LEN)));
-    }
+  else if(dec_pos == 0){
+    if(is_negative) *this = BigDecimal("-0" + strnum);
+    else *this = BigDecimal("0" + strnum);
   }
   else{
-    this->push_back(stoul(num));
+    if(is_negative) this->value = BigInt("-" + strnum);
+    else this->value = BigInt(strnum);
+    this->scale = BigInt("0");
   }
-  while(this->back() == 0 && this->size() > 1) this->pop_back(); //for BigDecimal initialization sanity check
 };
 
-BigInt::BigInt(const long int num){
-  string x = to_string(num);
-  *this = BigInt(x);
+BigDecimal::BigDecimal(const double& num){
+  *this = BigDecimal(to_string(num));
 };
 
-//Deconstructor
-BigInt::~BigInt(){
-  this->is_negative = false;
-  this->digits.clear();
+BigDecimal::BigDecimal(const BigInt& v, const BigInt& s){
+  this->value = v;
+  this->scale = s;
 };
 
-//Setters
-void BigInt::setNegative(const bool b){
-  this->is_negative = b;
-}
+BigDecimal::~BigDecimal(){
+  this->value = BigInt();
+  this->scale = BigInt();
+};
 
-void BigInt::setDigit(const unsigned long int digit, const long int x){
-  this->digits[digit] = x;
+void BigDecimal::trim(){
+  BigInt one = BigInt("1");
+  BigInt ten = BigInt("10");
+  BigInt remainder = this->value % ten;
+  while(remainder.size() == 1 && remainder.back() == 0){
+    this->value = this->value / ten;
+    this->scale = this->scale - one;
+    remainder = this->value % ten;
+  }
+};
+
+unsigned long int BigDecimal::precision(){
+  string val = "";
+  BigInt v = this->value;
+  while(v.size() > 0){
+    val += to_string(v.back());
+    v.pop_back();
+  }
+  return val.length();
 };
 
 //Getters
-bool BigInt::ifNegative() const {
-  return this->is_negative;
+BigInt BigDecimal::getValue() const {
+  return this->value;
 }
 
-long int BigInt::getDigit(const unsigned long int digit) const {
-  return this->digits[digit];
+BigInt BigDecimal::getScale() const {
+  return this->scale;
+}
+
+//Setters
+void BigDecimal::setValue(const BigInt& a){
+  this->value = a;
 };
 
-//Vector API
-unsigned long int BigInt::size() const {
-  return this->digits.size();
-};
-
-void BigInt::resize(const unsigned long int x){
-  unsigned long int before_x = this->digits.size();
-  this->digits.resize(x);
-  if(before_x < x) for(unsigned long int i=before_x; i<this->digits.size(); i++) this->digits[i] = 0;
-};
-
-void BigInt::push_back(const long int x){
-  this->digits.push_back(x);
-};
-
-void BigInt::pop_back(){
-  this->digits.pop_back();
-};
-
-long int BigInt::back() const {
-  return this->digits.back();
+void BigDecimal::setScale(const BigInt& a){
+  this->scale = a;
 };
 
 //Operators
-ostream& operator <<(ostream& os, const BigInt& a){
-  if(a.ifNegative()) os << "-";
-  if(a.size() > 0){
-    if(a.size() > 1){
-      os << a.back();
-      string x = "";
-      char x_len = 0;
-      for(unsigned long int i=a.size()-2; i>0; i--){
-        x = to_string(a.getDigit(i));
-        x_len = x.length();
-        for(char j=WORD_LEN; j>x_len; j--){
-          x = "0" + x;
-        }
-        os << x;
-      }
-      x = to_string(a.getDigit(0));
-      x_len = x.length();
-      for(char j=WORD_LEN; j>x_len; j--){
-        x = "0" + x;
-      }
-      os << x;
-    }
-    else{
-      os << a.getDigit(0);
-    }
-  }
-  else{
-    os << "err:size 0";
-  }
-  return os;
-};
-
-bool operator <(const BigInt& first, const BigInt& second){
-  if( (!first.ifNegative()) && (!second.ifNegative()) ){
-    if(first.size() > second.size()) return false;
-    else if(first.size() == second.size() && first.back() >= second.back()) return false;
-    else return true;
-  }
-  else if( first.ifNegative() && second.ifNegative() ){
-    if(first.size() < second.size()) return false;
-    else if(first.size() == second.size() && first.back() <= second.back()) return false;
-    else return true;
-  }
-  else if( (!first.ifNegative()) && second.ifNegative() ) return false;
-  else return true;
-}
-
-bool operator >(const BigInt& first, const BigInt& second){
-  if( (!first.ifNegative()) && (!second.ifNegative()) ){
-    if(first.size() < second.size()) return false;
-    else if(first.size() == second.size() && first.back() <= second.back()) return false;
-    else return true;
-  }
-  else if( first.ifNegative() && second.ifNegative() ){
-    if(first.size() > second.size()) return false;
-    else if(first.size() == second.size() && first.back() >= second.back()) return false;
-    else return true;
-  }
-  else if( (!first.ifNegative()) && second.ifNegative() ) return false;
-  else return true;
-}
-
-BigInt BigInt::operator =(const BigInt& a){
-  this->is_negative = a.ifNegative();
-  this->resize(a.size());
-  for(unsigned long int i=0; i<a.size(); i++){
-    this->setDigit(i,a.getDigit(i));
-  }
+BigDecimal BigDecimal::operator =(const BigDecimal& a){
+  this->value = a.getValue();
+  this->scale = a.getScale();
   return *this;
 };
 
-BigInt operator +(const BigInt& first, const BigInt& second){
-  BigInt add_first = first;
-  BigInt add_second = second;
-  add_first.setNegative(false);
-  add_second.setNegative(false);
-  if(first.ifNegative() && (!second.ifNegative()) && add_first > add_second){
-    BigInt addition = add_first - add_second;
-    addition.setNegative(true);
-    return addition;
+ostream& operator <<(ostream& os, const BigDecimal& a){
+  BigDecimal bd = a;
+  BigInt v = bd.getValue();
+  BigInt s = bd.getScale();
+  BigInt zero = BigInt("0");
+  BigInt one = BigInt("1");
+  string val = "";
+  if(v.ifNegative()){
+    os << "-";
   }
-  else if(first.ifNegative() && (!second.ifNegative()) && add_first < add_second) return add_second - add_first;
-  else if(first.ifNegative() && (!second.ifNegative())) return BigInt("0");
-  else if((!first.ifNegative()) && second.ifNegative() && add_first > add_second) return add_first - add_second;
-  else if((!first.ifNegative()) && second.ifNegative() && add_first < add_second){
-    BigInt addition = add_second - add_first;
-    addition.setNegative(true);
-    return addition;
+  while(v.size() > 0){
+    val += to_string(v.back());
+    v.pop_back();
   }
-  else if((!first.ifNegative()) && second.ifNegative()) return BigInt("0");
-  else if(first.ifNegative() && second.ifNegative()){
-    BigInt addition = add_first + add_second;
-    addition.setNegative(true);
-    return addition;
-  }
-  BigInt addition = add_first;
-  for(unsigned long int i=0; i<add_second.size(); i++){
-    if(i > addition.size()-1){
-      addition.push_back(0);
+  BigInt prec = BigInt(to_string(bd.precision()));
+  if(s+one > prec){
+    os << "0.";
+    BigInt counter = s - prec;
+    while(counter > zero){
+      os << "0";
+      counter = counter - one;
     }
-    addition.setDigit(i, addition.getDigit(i) + add_second.getDigit(i));
-    for(unsigned long int j=i; j<addition.size(); j++){
-      while(addition.getDigit(j) > (WORD_SIZE - 1)){
-        addition.setDigit(j, addition.getDigit(j) - WORD_SIZE);
-        if(j+1 > (addition.size() - 1)){
-          addition.push_back(1);
-        }
-        else{
-          addition.setDigit(j+1, addition.getDigit(j+1) + 1);
-        }
-      }
-      if(addition.getDigit(j+1) < WORD_SIZE){
-        break;
-      }
-    }
+    os << val;
   }
+  else if(s > zero){
+    BigInt limit = prec - s;
+    for(BigInt i=zero; i<limit; i=i+one){
+      os << val.front();
+      val = val.substr(1,val.length());
+    }
+    os << "." << val;
+  }
+  else os << val;
+  return os;
+};
+
+void matchScales(BigDecimal& first, BigDecimal& second){
+  BigInt s_first = first.getScale();
+  BigInt s_second = second.getScale();
+  if(s_first < s_second){
+    first = first * pow(BigDecimal("10"), s_second - s_first);
+    first.setScale(s_second);
+  }
+  else if(s_first > s_second){
+    second = second * pow(BigDecimal("10"), s_first - s_second);
+    first.setScale(s_first);
+  }
+};
+
+BigDecimal operator +(const BigDecimal& first, const BigDecimal& second){
+  BigDecimal f_add = first;
+  BigDecimal s_add = second;
+  matchScales(f_add, s_add);
+  BigInt add_value = f_add.getValue() + s_add.getValue();
+  BigDecimal addition = BigDecimal(add_value, f_add.getScale());
   return addition;
 };
 
-BigInt operator -(const BigInt& first, const BigInt& second){
-  BigInt sub_first = first;
-  BigInt sub_second = second;
-  sub_first.setNegative(false);
-  sub_second.setNegative(false);
-  if(first.ifNegative() && (!second.ifNegative()) && sub_first > sub_second){
-    BigInt subtract = sub_first - sub_second;
-    subtract.setNegative(true);
-    return subtract;
-  }
-  else if(first.ifNegative() && (!second.ifNegative()) && sub_first < sub_second) return sub_second - sub_first;
-  else if(first.ifNegative() && (!second.ifNegative())) return BigInt("0");
-  else if((!first.ifNegative()) && second.ifNegative()) return sub_first + sub_second;
-  else if(first.ifNegative() && second.ifNegative() && sub_first > sub_second){
-    BigInt subtract = sub_first - sub_second;
-    subtract.setNegative(true);
-    return subtract;
-  }
-  else if(first.ifNegative() && second.ifNegative() && sub_first < sub_second) return sub_second - sub_first;
-  else if((!first.ifNegative()) && (!second.ifNegative()) && sub_first < sub_second){
-    BigInt subtract = sub_second - sub_first;
-    subtract.setNegative(true);
-    return subtract;
-  }
-  BigInt subtract = sub_first;
-  for(unsigned long int i=0; i<sub_second.size(); i++){
-    subtract.setDigit(i, subtract.getDigit(i) - sub_second.getDigit(i));
-    for(unsigned long int j=i; j<subtract.size()-1; j++){
-      while(subtract.getDigit(j) < 0){
-        subtract.setDigit(j, subtract.getDigit(j) + WORD_SIZE);
-        subtract.setDigit(j+1, subtract.getDigit(j+1) - 1);
-      }
-      if(subtract.getDigit(j+1) > -1){
-        break;
-      }
-    }
-  }
-  while(subtract.back() == 0 && subtract.size() > 1){
-    subtract.pop_back();
-  }
-  return subtract;
+BigDecimal operator -(const BigDecimal& first, const BigDecimal& second){
+  BigDecimal f_sub = first;
+  BigDecimal s_sub = second;
+  matchScales(f_sub, s_sub);
+  BigInt sub_value = f_sub.getValue() - s_sub.getValue();
+  BigDecimal subtraction = BigDecimal(sub_value, f_sub.getScale());
+  return subtraction;
 };
 
-// Use long multiplcation
-//https://en.wikipedia.org/wiki/Multiplication_algorithm
-BigInt operator *(const BigInt& first, const BigInt& second){
-  if(second.back() == 0) return BigInt("0");
-  else if(first.back() == 0) return BigInt("0");
-  else if(second.size() == 1 && second.getDigit(0) == 1 && (!second.ifNegative())) return first;
-  else if(second.size() == 1 && second.getDigit(0) == 1 && second.ifNegative()){
-    BigInt prod = first;
-    prod.setNegative(true);
-    return prod;
-  }
-  else if(first.size() == 1 && first.getDigit(0) == 1 && (!first.ifNegative())) return second;
-  else if(first.size() == 1 && first.getDigit(0) == 1 && first.ifNegative()){
-    BigInt prod = second;
-    prod.setNegative(true);
-    return prod;
-  }
-  else if(first.ifNegative() && second.ifNegative()){
-    BigInt prod1 = first;
-    BigInt prod2 = second;
-    prod1.setNegative(false);
-    prod2.setNegative(false);
-    return prod1 * prod2;
-  }
-  else if(first.ifNegative() && (!second.ifNegative())){
-    BigInt prod1 = first;
-    prod1.setNegative(false);
-    BigInt prod2 = prod1 * second;
-    prod2.setNegative(true);
-    return prod2;
-  }
-  else if((!first.ifNegative()) && second.ifNegative()){
-    BigInt prod1 = second;
-    prod1.setNegative(false);
-    BigInt prod2 = first * prod1;
-    prod2.setNegative(true);
-    return prod2;
-  }
-  BigInt product = BigInt("0");
-  product.resize(first.size()+second.size());
-  unsigned long int carry;
-  for(unsigned long int b_i=0; b_i<second.size(); b_i++){
-    carry = 0;
-    for(unsigned long int a_i=0; a_i<first.size(); a_i++){
-      product.setDigit(a_i+b_i, product.getDigit(a_i+b_i)+carry+first.getDigit(a_i)*second.getDigit(b_i));
-      carry = (unsigned long int)(product.getDigit(a_i+b_i) / WORD_SIZE);
-      product.setDigit(a_i+b_i, product.getDigit(a_i+b_i) % WORD_SIZE);
-    }
-    product.setDigit(b_i+first.size(),carry);
-  }
-  while(product.back() == 0 && product.size() > 1){
-    product.pop_back();
-  }
-  return product;
+BigDecimal operator *(const BigDecimal& first, const BigDecimal& second){
+  BigDecimal f = first;
+  BigDecimal s = second;
+  return BigDecimal((f.getValue()*s.getValue()), (f.getScale()+s.getScale()));
 };
 
-BigInt operator /(const BigInt& first, const BigInt& second){
-  if(second.back() == 0) return BigInt("0");
-  else if(first.back() == 0) return BigInt("0");
-  else{
-    BigInt f = first;
-    f.setNegative(false);
-    BigInt s = second;
-    s.setNegative(false);
-    BigInt zero = BigInt("0");
-    BigInt one = BigInt("1");
-    BigInt counter = zero;
-    BigInt ten = BigInt("10");
-    BigInt i = ten;
-    BigInt si = s;
-    BigInt limit = si - one;
-    while(one < i){
-      si = s;
-      i = one;
-      while(f > si*ten){
-        si = si * ten;
-        i = i * ten;
-      }
-      limit = si - one;
-      while(f > limit){
-        f = f - si;
-        counter = counter + i;
-      }
-    }
-    if(first.ifNegative() && second.ifNegative()) return counter;
-    else if(first.ifNegative() || second.ifNegative()) counter = counter * BigInt("-1");
-    return counter;
-  }
+bool operator <(const BigDecimal& first, const BigDecimal& second){
+  BigDecimal f = first;
+  BigDecimal s = second;
+  matchScales(f, s);
+  return f.getValue() < s.getValue();
 };
 
-BigInt operator %(const BigInt& first, const BigInt& second){
-  BigInt zero = BigInt("0");
-  if(second.back() == 0) return zero;
-  else if(first.back() == 0) return zero;
-  else if(second.size() == 1 && second.getDigit(0) == 1) return zero;
-  else{
-    BigInt f = first;
-    f.setNegative(false);
-    BigInt s = second;
-    s.setNegative(false);
-    BigInt one = BigInt("1");
-    BigInt ten = BigInt("10");
-    BigInt i = ten;
-    BigInt si = s;
-    BigInt limit = si - one;
-    while(one < i){
-      si = s;
-      i = one;
-      while(f > si*ten){
-        si = si * ten;
-        i = i * ten;
-      }
-      limit = si - one;
-      while(f > limit) f = f - si;
-    }
-    if(first.ifNegative()) f = f * BigInt("-1");
-    return f;
-  }
+bool operator >(const BigDecimal& first, const BigDecimal& second){
+  BigDecimal f = first;
+  BigDecimal s = second;
+  matchScales(f, s);
+  return f.getValue() > s.getValue();
 };
 
-// Can only exponentiate postive n powers, but BigInt a can be negative
-BigInt pow(const BigInt& a, const unsigned long int& n){
-  if(n == 0){
-    return BigInt("1");
+BigDecimal operator /(const BigDecimal& first, const BigDecimal& second){
+  BigDecimal f_div = first;
+  BigDecimal s_div = second;
+  matchScales(f_div, s_div);
+  unsigned long int max_prec = f_div.precision() + round(s_div.precision()*10/3);
+  BigDecimal ten_pow = BigDecimal(pow(BigInt("10"), max_prec), BigInt("0"));
+  if(f_div < s_div){
+    BigDecimal f_div2 = f_div * ten_pow;
+    BigInt div_v = f_div2.getValue() / s_div.getValue();
+    BigInt div_s = f_div.precision() + BigDecimal(div_v, BigInt("0")).precision();
+    return BigDecimal(div_v, div_s);
   }
-  BigInt x = a;
-  BigInt y = BigInt("1");
+  else if(f_div > s_div){
+    BigDecimal s_div2 = s_div * ten_pow;
+    BigInt div_v = f_div.getValue() / s_div2.getValue();
+    BigInt div_s = s_div.precision() + BigDecimal(div_v, BigInt("0")).precision();
+    return BigDecimal(div_v, div_s);
+  }
+  else return BigDecimal("1");
+};
+
+BigDecimal operator %(const BigDecimal& first, const BigDecimal& second){
+  BigDecimal zero = BigDecimal("0");
+  BigInt zero_bint = BigInt("0");
+  BigDecimal f = first;
+  BigDecimal s = second;
+  BigInt f_v = f.getValue();
+  BigInt s_v = s.getValue();
+  BigInt f_s = f.getScale();
+  BigInt s_s = s.getScale();
+  if(f_s > zero_bint) return zero;
+  else if(s_s > zero_bint) return zero;
+  BigInt mod_v = f_v % s_v;
+  return BigDecimal(mod_v, zero_bint);
+};
+
+//n must be positive
+BigDecimal pow(const BigDecimal& a, const unsigned long int n){
+  BigDecimal one = BigDecimal("1");
+  if(n == 0) return one;
   unsigned long int z = n;
+  BigDecimal x = a;
+  BigDecimal y = one;
   while(z > 1){
     if(z % 2 == 0){
       x = x * x;
@@ -433,27 +272,26 @@ BigInt pow(const BigInt& a, const unsigned long int& n){
   return x * y;
 };
 
-//Remember n must be positive
-BigInt pow(const BigInt& a, const BigInt& n){
-  BigInt one = BigInt("1");
-  if(n.size() == 1 && n.back() == 0){
-    return one;
-  }
-  BigInt x = a;
-  BigInt y = one;
+//n must be positive
+BigDecimal pow(const BigDecimal& a, const BigInt& n){
+  BigDecimal one = BigDecimal("1");
+  if(n.size() == 1 && n.back() == 0) return one;
+  BigDecimal x = a;
+  BigDecimal y = one;
   BigInt z = n;
-  BigInt mod = one;
-  BigInt two = BigInt("2");
-  while(z > one){
-    mod = z % two;
+  BigInt one_bint = BigInt("1");
+  BigInt mod = one_bint;
+  BigInt two_bint = BigInt("2");
+  while(z > one_bint){
+    mod = z % two_bint;
     if(mod.size() == 1 && mod.back() == 0){
       x = x * x;
-      z = z / two;
+      z = z / two_bint;
     }
     else{
       y = x * y;
       x = x * x;
-      z = (z - one) / two;
+      z = (z - one_bint) / two_bint;
     }
   }
   return x * y;
