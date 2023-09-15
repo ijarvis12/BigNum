@@ -202,16 +202,16 @@ BigDecimal operator /(const BigDecimal& first, const BigDecimal& second){
   BigDecimal f_div = first;
   BigDecimal s_div = second;
   matchScales(f_div, s_div);
-  unsigned long int max_prec = f_div.precision() + round(s_div.precision()*10/3);
-  BigDecimal ten_pow = BigDecimal(pow(BigInt("10"), max_prec), BigInt("0"));
   if(f_div < s_div){
+    unsigned long int max_prec = f_div.precision() + round(s_div.precision()*10/3);
+    BigDecimal ten_pow = BigDecimal(pow(BigInt("10"), max_prec), BigInt("0"));
     BigDecimal f_div2 = f_div * ten_pow;
     BigInt div_v = f_div2.getValue() / s_div.getValue();
-    BigInt div_s = s_div.getScale() - (ten_pow.getScale() / BigInt("2"));
+    BigInt div_s = f_div.precision() + BigDecimal(div_v, BigInt("0")).precision();
     return BigDecimal(div_v, div_s);
   }
   else if(f_div > s_div){
-    BigInt div_v = f_div.getValue() / s_div2.getValue();
+    BigInt div_v = f_div.getValue() / s_div.getValue();
     BigInt div_s = f_div.getScale();
     return BigDecimal(div_v, div_s);
   }
