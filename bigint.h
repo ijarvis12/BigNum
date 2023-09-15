@@ -403,6 +403,7 @@ BigInt operator %(const BigInt& first, const BigInt& second){
         si = si * ten;
         i = i * ten;
       }
+      limit = si - one;
       while(f > limit) f = f - si;
     }
     if(first.ifNegative()) f = f * BigInt("-1");
