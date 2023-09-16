@@ -229,7 +229,7 @@ BigDecimal operator /(const BigDecimal& first, const BigDecimal& second){
   f_div_v_f.setNegative(false);
   s_div_v_f.setNegative(false);
   if(f_div_v_f < s_div_v_f){
-    BigInt max_prec = f_div.precision() + s_div.precision()*BigInt("10")/BigInt("3");
+    BigInt max_prec = f_div.precision() + s_div.precision()*BigInt("4");
     BigDecimal ten_pow = BigDecimal(pow(BigInt("10"), max_prec), BigInt("0"));
     BigDecimal f_div2 = f_div * ten_pow;
     BigInt div_v = f_div2.getValue() / s_div.getValue();
@@ -241,6 +241,8 @@ BigDecimal operator /(const BigDecimal& first, const BigDecimal& second){
     BigInt div_s = f_div.getScale();
     return BigDecimal(div_v, div_s);
   }
+  else if(f_div.getValue().ifNegative() && s_div.getValue().ifNegative()) return BigDecimal("1");
+  else if(f_div.getValue().ifNegative() || s_div.getValue().ifNegative()) return BigDecimal("-1");
   else return BigDecimal("1");
 };
 
