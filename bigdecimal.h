@@ -234,7 +234,7 @@ BigDecimal operator /(const BigDecimal& first, const BigDecimal& second){
     BigDecimal ten_pow = BigDecimal(pow(BigInt("10"), max_prec), BigInt("0"));
     BigDecimal f_div2 = f_div * ten_pow;
     BigInt div_v = f_div2.getValue() / s_div.getValue();
-    BigInt div_s = f_div.precision() + BigDecimal(div_v, BigInt("0")).precision();
+    BigInt div_s = BigInt(to_string( s_div.precision() + BigDecimal(div_v, BigInt("0")).precision() - 1));
     return BigDecimal(div_v, div_s);
   }
   else if(f_div_v_f > s_div_v_f){
