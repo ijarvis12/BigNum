@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <cmath>
 #include "bigint.h"
 using namespace std;
 
@@ -15,7 +14,7 @@ class BigDecimal{
     BigDecimal(const BigInt& v, const BigInt& s);
     ~BigDecimal();
     void trim();
-    unsigned long int precision();
+    BigInt precision();
     //Getters
     BigInt getValue() const;
     BigInt getScale() const;
@@ -93,14 +92,14 @@ void BigDecimal::trim(){
   }
 };
 
-unsigned long int BigDecimal::precision(){
-  string val = "";
+BigInt BigDecimal::precision(){
+  BigInt ret_val = BigInt("0");
   BigInt v = this->value;
   while(v.size() > 0){
-    val += to_string(v.back());
+    ret_val = ret_val + BigInt( to_string( to_string(v.back()).length() ) );
     v.pop_back();
   }
-  return val.length();
+  return ret_val;
 };
 
 //Getters
@@ -142,7 +141,7 @@ ostream& operator <<(ostream& os, const BigDecimal& a){
     val += to_string(v.back());
     v.pop_back();
   }
-  BigInt prec = BigInt(to_string(bd.precision()));
+  BigInt prec = bd.precision();
   if(s > prec){
     os << "0.";
     BigInt counter = s - prec;
@@ -230,11 +229,11 @@ BigDecimal operator /(const BigDecimal& first, const BigDecimal& second){
   f_div_v_f.setNegative(false);
   s_div_v_f.setNegative(false);
   if(f_div_v_f < s_div_v_f){
-    unsigned long int max_prec = f_div.precision() + round(s_div.precision()*10/3);
+    BigInt max_prec = f_div.precision() + s_div.precision()*BigInt("10")/BigInt("3");
     BigDecimal ten_pow = BigDecimal(pow(BigInt("10"), max_prec), BigInt("0"));
     BigDecimal f_div2 = f_div * ten_pow;
     BigInt div_v = f_div2.getValue() / s_div.getValue();
-    BigInt div_s = BigInt(to_string( s_div.precision() + BigDecimal(div_v, BigInt("0")).precision() - 1));
+    BigInt div_s = s_div.precision() + BigDecimal(div_v, BigInt("0")).precision() - BigInt("1");
     return BigDecimal(div_v, div_s);
   }
   else if(f_div_v_f > s_div_v_f){
