@@ -29,6 +29,12 @@ int main(){
   BigDecimal i7 = BigDecimal("1234567890000");
   cout << i7 << endl;
 
+  BigDecimal i8 = BigDecimal("0.123456789");
+  cout << i8 << endl;
+
+  BigDecimal i9 = BigDecimal("1.23456789");
+  cout << i9 << endl;
+
   cout << endl;
 
   //Operator Tests
