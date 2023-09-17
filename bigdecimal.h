@@ -139,7 +139,7 @@ ostream& operator <<(ostream& os, const BigDecimal& a){
   if(s > prec){
     os << "0.";
     BigInt counter = s - prec;
-    while(counter > zero){
+    while(counter > one){
       os << "0";
       counter = counter - one;
     }
