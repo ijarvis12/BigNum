@@ -95,10 +95,8 @@ void BigDecimal::trim(){
 BigInt BigDecimal::precision(){
   BigInt ret_val = BigInt("0");
   BigInt v = this->value;
-  while(v.size() > 0){
-    ret_val = ret_val + BigInt( to_string( to_string(v.back()).length() ) );
-    v.pop_back();
-  }
+  ret_val = BigInt(to_string(v.back()).length());
+  ret_val = ret_val + BigInt(WORD_LEN)*BigInt(v.size()-1);
   return ret_val;
 };
 
@@ -160,8 +158,7 @@ ostream& operator <<(ostream& os, const BigDecimal& a){
       }
     }
     else{
-      os << val.front();
-      val = val.substr(1,val.length());
+      os << "0";
     }
     os << "." << val;
   }
