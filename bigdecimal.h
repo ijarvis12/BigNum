@@ -96,7 +96,7 @@ BigInt BigDecimal::precision(){
   BigInt ret_val = BigInt("0");
   BigInt v = this->value;
   ret_val = BigInt(to_string(v.back()).length());
-  ret_val = ret_val + BigInt(WORD_LEN)*BigInt(v.size()-1);
+  ret_val = ret_val + BigInt(WORD_LEN)*BigInt(to_string(v.size()-1));
   return ret_val;
 };
 
@@ -135,10 +135,6 @@ ostream& operator <<(ostream& os, const BigDecimal& a){
   if(v.ifNegative()){
     os << "-";
   }
-  while(v.size() > 0){
-    val += to_string(v.back());
-    v.pop_back();
-  }
   BigInt prec = bd.precision();
   if(s > prec){
     os << "0.";
@@ -147,22 +143,58 @@ ostream& operator <<(ostream& os, const BigDecimal& a){
       os << "0";
       counter = counter - one;
     }
-    os << val;
+    while(v.size() > 0){
+      val = to_string(v.back());
+      v.pop_back();
+      char val_len = val.length();
+      for(char j=WORD_LEN; j>val_len; j--) val = "0" + val;
+      os << val;
+    }
   }
   else if(s > zero){
     BigInt limit = prec - s;
     if(limit > zero){
-      for(BigInt i=zero; i<limit; i=i+one){
-        os << val.front();
-        val = val.substr(1,val.length());
+      BigInt i = zero;
+      unsigned long int size = v.size();
+      while(i < limit){
+        if(val.length() > 0){
+          os << val.front();
+          val = val.substr(1,val.length());
+          i = i + one;
+        }
+        else if(v.size() == size){
+          val = to_string(v.back());
+          v.pop_back();
+        }
+        else{
+          val = to_string(v.back());
+          v.pop_back();
+          char val_len = val.length();
+          for(char j=WORD_LEN; j>val_len; j--) val = "0" + val;
+        }
+      }
+      os << ".";
+      if(val.length() > 0) os << val;
+      while(v.size() > 0){
+        val = to_string(v.back());
+        v.pop_back();
+        char val_len = val.length();
+        for(char j=WORD_LEN; j>val_len; j--) val = "0" + val;
+        os << val;
       }
     }
     else{
-      os << "0";
+      os << "0.";
+      while(v.size() > 0){
+        val = to_string(v.back());
+        v.pop_back();
+        char val_len = val.length();
+        for(char j=WORD_LEN; j>val_len; j--) val = "0" + val;
+        os << val;
+      }
     }
-    os << "." << val;
   }
-  else os << val;
+  else os << v;
   return os;
 };
 
