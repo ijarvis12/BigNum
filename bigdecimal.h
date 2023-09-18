@@ -265,11 +265,10 @@ BigDecimal operator /(const BigDecimal& first, const BigDecimal& second){
   s_div_v_f.setNegative(false);
   if(f_div_v_f < s_div_v_f){
     BigInt max_prec = f_div.precision() + s_div.precision()*BigInt("4");
-    BigDecimal ten_pow = BigDecimal(pow(BigInt("10"), max_prec), BigInt("0"));
-    BigDecimal f_div2 = f_div * ten_pow;
+    BigDecimal f_div2 = f_div * BigDecimal(pow(BigInt("10"), max_prec), BigInt("0"));
     BigInt div_v = f_div2.getValue() / s_div.getValue();
-    BigInt div_s = s_div.precision() + BigDecimal(div_v, BigInt("0")).precision() - BigInt("1");
-    return BigDecimal(div_v, div_s);
+    //BigInt div_s = s_div.precision() + BigDecimal(div_v, BigInt("0")).precision() - BigInt("1");
+    return BigDecimal(div_v, max_prec);
   }
   else if(f_div_v_f > s_div_v_f){
     BigInt div_v = f_div.getValue() / s_div.getValue();
