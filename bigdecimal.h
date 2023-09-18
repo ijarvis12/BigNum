@@ -143,6 +143,9 @@ ostream& operator <<(ostream& os, const BigDecimal& a){
       os << "0";
       counter = counter - one;
     }
+    val = to_string(v.back());
+    v.pop_back();
+    os << val;
     while(v.size() > 0){
       val = to_string(v.back());
       v.pop_back();
@@ -185,6 +188,9 @@ ostream& operator <<(ostream& os, const BigDecimal& a){
     }
     else{
       os << "0.";
+      val = to_string(v.back());
+      v.pop_back();
+      os << val;
       while(v.size() > 0){
         val = to_string(v.back());
         v.pop_back();
