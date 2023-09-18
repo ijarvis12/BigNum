@@ -226,22 +226,15 @@ BigInt operator +(const BigInt& first, const BigInt& second){
   }
   BigInt addition = add_first;
   for(unsigned long int i=0; i<add_second.size(); i++){
-    if(i > addition.size()-1){
-      addition.push_back(0);
-    }
+    if(i > addition.size()-1) addition.push_back(0);
     addition.setDigit(i, addition.getDigit(i) + add_second.getDigit(i));
     unsigned long int j=i;
     while(addition.getDigit(j) > (WORD_SIZE - 1)){
       addition.setDigit(j, addition.getDigit(j) - WORD_SIZE);
-      if(j+1 > (addition.size() - 1)){
-        addition.push_back(1);
-      }
-      else{
-        addition.setDigit(j+1, addition.getDigit(j+1) + 1);
-      }
+      if(j+1 > (addition.size() - 1)) addition.push_back(1);
+      else addition.setDigit(j+1, addition.getDigit(j+1) + 1);
       j++;
     }
-    if(addition.getDigit(j+1) < WORD_SIZE) break;
   }
   return addition;
 };
@@ -271,19 +264,14 @@ BigInt operator -(const BigInt& first, const BigInt& second){
   BigInt subtract = sub_first;
   for(unsigned long int i=0; i<sub_second.size(); i++){
     subtract.setDigit(i, subtract.getDigit(i) - sub_second.getDigit(i));
-    for(unsigned long int j=i; j<subtract.size()-1; j++){
-      while(subtract.getDigit(j) < 0){
-        subtract.setDigit(j, subtract.getDigit(j) + WORD_SIZE);
-        subtract.setDigit(j+1, subtract.getDigit(j+1) - 1);
-      }
-      if(subtract.getDigit(j+1) > -1){
-        break;
-      }
+    unsigned long int j=i;
+    while(subtract.getDigit(j) < 0){
+      subtract.setDigit(j, subtract.getDigit(j) + WORD_SIZE);
+      subtract.setDigit(j+1, subtract.getDigit(j+1) - 1);
+      j++;
     }
   }
-  while(subtract.back() == 0 && subtract.size() > 1){
-    subtract.pop_back();
-  }
+  while(subtract.back() == 0 && subtract.size() > 1) subtract.pop_back();
   return subtract;
 };
 
@@ -337,9 +325,7 @@ BigInt operator *(const BigInt& first, const BigInt& second){
     }
     product.setDigit(b_i+first.size(),carry);
   }
-  while(product.back() == 0 && product.size() > 1){
-    product.pop_back();
-  }
+  while(product.back() == 0 && product.size() > 1) product.pop_back();
   return product;
 };
 
