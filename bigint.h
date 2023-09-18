@@ -239,6 +239,7 @@ BigInt operator +(const BigInt& first, const BigInt& second){
         else{
           addition.setDigit(j+1, addition.getDigit(j+1) + 1);
         }
+        j++;
       }
       if(addition.getDigit(j+1) < WORD_SIZE){
         break;
