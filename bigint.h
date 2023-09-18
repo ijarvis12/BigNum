@@ -230,21 +230,18 @@ BigInt operator +(const BigInt& first, const BigInt& second){
       addition.push_back(0);
     }
     addition.setDigit(i, addition.getDigit(i) + add_second.getDigit(i));
-    for(unsigned long int j=i; j<addition.size(); j++){
-      while(addition.getDigit(j) > (WORD_SIZE - 1)){
-        addition.setDigit(j, addition.getDigit(j) - WORD_SIZE);
-        if(j+1 > (addition.size() - 1)){
-          addition.push_back(1);
-        }
-        else{
-          addition.setDigit(j+1, addition.getDigit(j+1) + 1);
-        }
-        j++;
+    unsigned long int j=i;
+    while(addition.getDigit(j) > (WORD_SIZE - 1)){
+      addition.setDigit(j, addition.getDigit(j) - WORD_SIZE);
+      if(j+1 > (addition.size() - 1)){
+        addition.push_back(1);
       }
-      if(addition.getDigit(j+1) < WORD_SIZE){
-        break;
+      else{
+        addition.setDigit(j+1, addition.getDigit(j+1) + 1);
       }
+      j++;
     }
+    if(addition.getDigit(j+1) < WORD_SIZE) break;
   }
   return addition;
 };
