@@ -3,7 +3,7 @@
 #include <vector>
 using namespace std;
 
-const unsigned long int WORD_SIZE = 1000000000;
+const long int WORD_SIZE = 1000000000;
 const char WORD_LEN = 9;
 
 class BigInt{
